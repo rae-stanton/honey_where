@@ -8,37 +8,43 @@ metadata = MetaData(naming_convention={
 db = SQLAlchemy(metadata=metadata)
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    name = db.Column(db.String, primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
 
     def __repr__(self):
         return f'(id={self.id}, name={self.name})'
 
 class Home(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    users = db.relationship("User", back_populates="home")
+    id = db.Column(db.Integer, primary_key=True)
+    # users = db.relationship("User", back_populates="home")
 
 
     def __repr__(self):
         return f'(id={self.id})'
 
 class Room(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
-    home_id = db.Column(db.Integer, db.ForeignKey('home.id'))
+    # home_id = db.Column(db.Integer, db.ForeignKey('home.id'))
 
-    home = db.relationship('Home', back_populates='rooms')
+    # home = db.relationship('Home', back_populates='rooms')
 
 class Subroom(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
-    room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
+    # room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
 
-    room = db.relationship("Room", back_populates="subrooms")
+    # room = db.relationship("Room", back_populates="subrooms")
 
 class Item(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
-    subroom_id = db.Column(db.Integer, db.ForeignKey("subroom.id"))
+    # subroom_id = db.Column(db.Integer, db.ForeignKey("subroom.id"))
 
-    subroom = db.relationship("Subroom", back_populates="items")
+    # subroom = db.relationship("Subroom", back_populates="items")

@@ -13,6 +13,7 @@ sqlalchemy-serializer = "*"
 flask-migrate = "*"
 pytest = "*"
 pytest-flask = "*"
+flask-restful = "*"
 
 [dev-packages]
 
