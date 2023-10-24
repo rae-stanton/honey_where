@@ -8,8 +8,6 @@ metadata = MetaData(naming_convention={
 db = SQLAlchemy(metadata=metadata)
 
 class User(db.Model):
-    __tablename__ = "users"
-
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String, primary_key=True, nullable=False)
 
