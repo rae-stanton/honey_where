@@ -16,8 +16,15 @@ class User(db.Model):
 
 class Home(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    users = db.relationship("User", backpopulates="home")
+    users = db.relationship("User", back_populates="home")
 
 
     def __repr__(self):
         return f'(id={self.id})'
+
+class Room(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(128))
+    home_id = db.Column(db.Integer, db.ForeignKey('home.id'))
+
+    home = db.relationship('Home', back_populates='rooms')
