@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
-
+from sqlalchemy.orm import validates
 metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
 })
@@ -16,6 +16,14 @@ class User(db.Model):
             "id": self.id,
             "name": self.name
         }
+
+    @validates('name')
+    def validate_name(self, key, name):
+        if not isinstance(name, str):
+            raise AssertionError('Name must be a string')
+        if len(name) < 2:
+            raise AssertionError('Name must be at least two characters long')
+        return name
 
     def __repr__(self):
         return f'(id={self.id}, name={self.name})'

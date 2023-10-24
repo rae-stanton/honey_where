@@ -14,6 +14,7 @@ flask-migrate = "*"
 pytest = "*"
 pytest-flask = "*"
 flask-restful = "*"
+"sqlalchemy.orm" = "*"
 
 [dev-packages]
 

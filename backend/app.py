@@ -26,14 +26,15 @@ class Users(Resource):
 
     def post(self):
         data = request.get_json()
-        user_id = data['id']  # Extracting the id from the payload
+        user_id = data['id']
         name = data['name']
 
-        user = User(id=user_id, name=name)  # Initializing the User object with both id and name
+        user = User(id=user_id, name=name)
         db.session.add(user)
         db.session.commit()
 
         return {'message': 'User created successfully!'}, 201
+
 
 api.add_resource(Users, "/users")
 
