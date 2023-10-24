@@ -13,3 +13,11 @@ class User(db.Model):
 
     def __repr__(self):
         return f'(id={self.id}, name={self.name})'
+
+class Home(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    users = db.relationship("User", backpopulates="home")
+
+
+    def __repr__(self):
+        return f'(id={self.id})'
