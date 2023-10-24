@@ -29,9 +29,16 @@ class Room(db.Model):
 
     home = db.relationship('Home', back_populates='rooms')
 
-class SubRoom(db.Model):
+class Subroom(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String(128))
     room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
 
     room = db.relationship("Room", back_populates="subrooms")
+
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(128))
+    subroom_id = db.Column(db.Integer, db.ForeignKey("subroom.id"))
+
+    subroom = db.relationship("Subroom", back_populates="items")
