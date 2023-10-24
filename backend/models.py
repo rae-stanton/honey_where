@@ -28,3 +28,10 @@ class Room(db.Model):
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'))
 
     home = db.relationship('Home', back_populates='rooms')
+
+class SubRoom(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(128))
+    room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
+
+    room = db.relationship("Room", back_populates="subrooms")
