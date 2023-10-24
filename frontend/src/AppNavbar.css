@@ -1,4 +1,15 @@
 .main-navbar {
-  /* temporary */
-  background-color: pink;
+  background-color: #f5891d;
+}
+
+.navlink {
+  color: white !important;
+  font-family: 'Nunito', sans-serif !important;
+  text-transform: uppercase;
+}
+
+.navlink:hover {
+  color: white !important;
+  text-decoration: underline !important;
+  text-decoration-style: dashed !important;
 }

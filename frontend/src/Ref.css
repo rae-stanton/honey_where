@@ -1,0 +1,59 @@
+/* Reference Sheet for Styling */
+
+/* Color Palette */
+
+/*
+
+#f5891d - orange
+#ffbc13 - gold
+#ceb4a7 - soft taupe
+#856a61 - dark taupe
+#1e160b - black
+
+Current body background color: #e7e2d1
+
+Google font choice:
+Nunito
+
+
+Create pill badge for categories:
+javascript
+Copy code
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Badge } from 'react-bootstrap';
+Create the pill component:
+
+javascript
+Copy code
+function ColoredPill() {
+  return (
+    <Badge className="pill-badge">
+      <span className="dot"></span>
+      Label
+    </Badge>
+  );
+}
+Add the custom styles for the pill and the dot:
+
+css
+Copy code
+.pill-badge {
+  background-color: #4CAF50; /* Change to desired color */
+  /* border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: white; /* Text color */
+/* } */
+
+/* .pill-badge .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #FFF; /* Dot color */
+  /* border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle; */
+/* } */
+
