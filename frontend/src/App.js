@@ -6,6 +6,7 @@ import Home from "./Home"
 import AppNavbar from './AppNavbar';
 import Signup from "./Signup";
 import Login from "./Login"
+import Logout from "./Logout"
 
 function App() {
   return (
