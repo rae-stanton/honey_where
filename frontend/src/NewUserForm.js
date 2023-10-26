@@ -40,7 +40,7 @@ function NewUserForm() {
 
               <label htmlFor="name">Name</label>
               <br />
-              <Field id="name" name="name" placeholder="Luna Lucy" />
+              <Field id="name" name="name" placeholder="Luna Faust" />
               <br />
 
               <br />
