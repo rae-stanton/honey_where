@@ -1,9 +1,9 @@
-import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
+import { useState } from 'react';
 
-function Login() {
+function Login({ setIsLoggedIn }) {
   const navigate = useNavigate();
 
   return (
@@ -22,6 +22,11 @@ function Login() {
 
             if (response.status === 200) {
               localStorage.setItem("access_token", response.data.access_token);
+              localStorage.setItem(
+                "refresh_token",
+                response.data.refresh_token
+              );
+              setIsLoggedIn(true);
               navigate("/"); // Redirect to home
             } else {
               alert("Login failed");

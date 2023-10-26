@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from models import db, User, bcrypt
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
 app = Flask(__name__)
@@ -23,7 +23,9 @@ app.config['JWT_SECRET_KEY'] = 'your-secret-key'
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'json']
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=60)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+app.config['PROPAGATE_EXCEPTIONS'] = True
 
 jwt = JWTManager(app)
 
@@ -105,6 +107,16 @@ class UserById(Resource):
 api.add_resource(UserById, "/users/<int:user_id>")
 
 
+class TokenRefreshResource(Resource):
+    @jwt_required(refresh=True)
+    def post(self):
+        current_user = get_jwt_identity()
+        access_token = create_access_token(identity=current_user)
+        return {"access_token": access_token}, 200
+
+api.add_resource(TokenRefreshResource, "/token/refresh")
+
+
 class LoginResource(Resource):
     def post(self):
         email = request.json.get('email', None)
@@ -112,7 +124,8 @@ class LoginResource(Resource):
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             access_token = create_access_token(identity=email)
-            return {"access_token": access_token}, 200
+            refresh_token = create_refresh_token(identity=email)
+            return {"access_token": access_token, "refresh_token": refresh_token}, 200
         return {"message": "Invalid email or password."}, 401
 
 
@@ -122,8 +135,23 @@ api.add_resource(LoginResource, "/login")
 class LogoutResource(Resource):
     @jwt_required()
     def post(self):
-        jti = get_jti(request.json['access_token'])
-        blacklist.add(jti)
+        # Extracting the access token from the Authorization header
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or "Bearer " not in auth_header:
+            return {"message": "Missing or invalid token"}, 400
+
+        access_token = auth_header.split(" ")[1]
+
+        # Blacklist the access token
+        jti_access = get_jti(access_token)
+        blacklist.add(jti_access)
+
+        # If the refresh token is provided in the request's JSON, blacklist it as well
+        refresh_token = request.json.get('refresh_token', None)
+        if refresh_token:
+            jti_refresh = get_jti(refresh_token)
+            blacklist.add(jti_refresh)
+
         return {"message": "Successfully logged out."}, 200
 
 
@@ -135,6 +163,16 @@ def invalid_token_callback(error):
     return jsonify({
         'message': 'Signature verification failed.'
     }), 401
+
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({'message': 'The token has expired.'}), 401
+
+
+@jwt.revoked_token_loader
+def revoked_token_callback(jwt_header, jwt_payload):
+    return jsonify({'message': 'The token has been revoked.'}), 401
 
 
 if __name__ == "__main__":
