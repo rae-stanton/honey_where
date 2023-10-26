@@ -35,9 +35,42 @@ class Users(Resource):
 
         return {'message': 'User created successfully!'}, 201
 
-
-
 api.add_resource(Users, "/users")
+
+class UserById(Resource):
+    def get(self, user_id):
+        user = User.query.get(user_id)
+        if not user:
+            return {"message": "User not found."}, 404
+        return jsonify(user.to_dict())
+
+    def patch(self, user_id):
+        data = request.get_json()
+
+        # Fetch the user by ID
+        user = User.query.get(user_id)
+        if not user:
+            return {"message": "User not found."}, 404
+
+        # Update fields if provided, will need to add email and password later.
+        if 'name' in data:
+            user.name = data['name']
+
+        db.session.commit()
+
+        return {"message": "User updated successfully!", "user": user.to_dict()}, 200
+
+    def delete(self, user_id):
+        user = User.query.get(user_id)
+        if not user:
+            return {"message": "User not found."}, 404
+
+        db.session.delete(user)
+        db.session.commit()
+        return {"message": "User deleted successfully!"}, 200
+
+api.add_resource(UserById, "/users/<int:user_id>")
+
 
 if __name__ == "__main__":
     app.run()
