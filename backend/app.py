@@ -23,17 +23,19 @@ app.config['JWT_SECRET_KEY'] = 'your-secret-key'
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'json']
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=60)
 
 jwt = JWTManager(app)
 
 # A simple database for blacklisted tokens
 blacklist = set()
 
-def check_if_token_in_blacklist(decrypted_token):
-    return decrypted_token['jti'] in blacklist
 
-jwt.token_in_blacklist_loader(check_if_token_in_blacklist)
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blacklist(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    return jti in blacklist
+
 
 @app.route("/")
 def hello():
@@ -108,12 +110,14 @@ class LoginResource(Resource):
         email = request.json.get('email', None)
         password = request.json.get('password', None)
         user = User.query.filter_by(email=email).first()
-        if user and bcrypt.check_password_hash(user.password, password):
+        if user and user.check_password(password):
             access_token = create_access_token(identity=email)
             return {"access_token": access_token}, 200
         return {"message": "Invalid email or password."}, 401
 
+
 api.add_resource(LoginResource, "/login")
+
 
 class LogoutResource(Resource):
     @jwt_required()
@@ -122,13 +126,16 @@ class LogoutResource(Resource):
         blacklist.add(jti)
         return {"message": "Successfully logged out."}, 200
 
+
 api.add_resource(LogoutResource, '/logout')
+
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
     return jsonify({
         'message': 'Signature verification failed.'
     }), 401
+
 
 if __name__ == "__main__":
     app.run()
