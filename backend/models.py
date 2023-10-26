@@ -7,15 +7,25 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(metadata=metadata)
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    hashed_password = db.Column(db.String(128), nullable=False)
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name
         }
+
+    def set_password(self, password):
+        self.hashed_password = bcrypt.generate_password_hash(
+            password).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.hashed_password, password)
 
     @validates('name')
     def validate_name(self, key, name):
@@ -28,13 +38,14 @@ class User(db.Model):
     def __repr__(self):
         return f'(id={self.id}, name={self.name})'
 
+
 class Home(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # users = db.relationship("User", back_populates="home")
 
-
     def __repr__(self):
         return f'(id={self.id})'
+
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -43,12 +54,14 @@ class Room(db.Model):
 
     # home = db.relationship('Home', back_populates='rooms')
 
+
 class Subroom(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
     # room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
 
     # room = db.relationship("Room", back_populates="subrooms")
+
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
