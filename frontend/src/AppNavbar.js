@@ -20,6 +20,7 @@ function AppNavbar() {
         </Navbar.Brand> */}
         <Nav className="flex-grow-1 justify-content-end align-items-center">
           <Nav.Link as={Link} to="/" style={{ marginRight: '10px' }} className="navlink">Home</Nav.Link>
+          <Nav.Link as={Link} to="/signup" style={{ marginRight: '10px' }} className="navlink">Sign Up</Nav.Link>
         </Nav>
       </Container>
     </Navbar>

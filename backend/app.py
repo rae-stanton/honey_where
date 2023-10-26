@@ -3,8 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-
-from models import db, User
+from models import db, User, bcrypt
 
 app = Flask(__name__)
 
@@ -15,6 +14,8 @@ db.init_app(app)
 migrate = Migrate(app, db)
 api = Api(app)
 CORS(app)
+
+bcrypt.init_app(app)
 
 @app.route("/")
 def hello():
@@ -28,8 +29,16 @@ class Users(Resource):
     def post(self):
         data = request.get_json()
         name = data['name']
+        email = data['email']
+        password = data['password']
 
-        user = User(name=name)  # No need to pass id
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return {'message': 'Email already registered.'}, 400
+
+        user = User(name=name, email=email)
+        user.set_password(password)
+
         db.session.add(user)
         db.session.commit()
 
