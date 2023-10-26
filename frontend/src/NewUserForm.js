@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios"; // Import axios
+import axios from "axios";
 import { Formik, Field, Form } from "formik";
 import Button from "react-bootstrap/Button";
 
@@ -11,11 +11,15 @@ function NewUserForm() {
         <Formik
           initialValues={{
             name: "",
+            email: "",
+            password: ""
           }}
           onSubmit={async (values, { setSubmitting }) => {
             try {
               const response = await axios.post("http://127.0.0.1:5000/users", {
                 name: values.name,
+                email: values.email,
+                password: values.password
               });
               if (response.status === 201) {
                 alert("User created successfully!");
@@ -31,19 +35,21 @@ function NewUserForm() {
         >
           {({ isSubmitting }) => (
             <Form className="form-border">
-              {/* <img
-                src={loginImage}
-                alt="Login Illustration"
-                className="login-image"
-              /> */}
-              <br />
-
               <label htmlFor="name">Name</label>
               <br />
               <Field id="name" name="name" placeholder="Luna Faust" />
               <br />
 
+              <label htmlFor="email">Email</label>
               <br />
+              <Field id="email" name="email" placeholder="luna@example.com" type="email" />
+              <br />
+
+              <label htmlFor="password">Password</label>
+              <br />
+              <Field id="password" name="password" placeholder="Password" type="password" />
+              <br />
+
               <Button variant="primary" type="submit" className="form-button" disabled={isSubmitting}>
                 Create User
               </Button>
