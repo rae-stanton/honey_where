@@ -1,6 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy.orm import validates
+from flask_bcrypt import Bcrypt
+
+# Instantiating bcrypt here
+bcrypt = Bcrypt()
+
 metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
 })
@@ -35,8 +40,15 @@ class User(db.Model):
             raise AssertionError('Name must be at least two characters long')
         return name
 
+    @validates("email")
+    def validate_email(self, key, email):
+        if not isinstance(email, str):
+            raise AssertionError("Email must be a string")
+        if len(email) < 2:
+            raise AssertionError("Email must be a minimum of 2 characters long")
+        return email
     def __repr__(self):
-        return f'(id={self.id}, name={self.name})'
+        return f'(id={self.id}, name={self.name} email={self.email})'
 
 
 class Home(db.Model):
