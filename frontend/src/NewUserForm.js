@@ -17,15 +17,12 @@ function NewUserForm() {
               const response = await axios.post("http://127.0.0.1:5000/users", {
                 name: values.name,
               });
-
-              // With axios, the response data is in the 'data' property
               if (response.status === 201) {
                 alert("User created successfully!");
               } else {
                 alert(response.data.message || "User creation failed.");
               }
             } catch (error) {
-              // Handle errors gracefully
               alert(error.response.data.message || "User creation failed.");
             } finally {
               setSubmitting(false);
