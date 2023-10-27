@@ -125,8 +125,13 @@ class LoginResource(Resource):
         if user and user.check_password(password):
             access_token = create_access_token(identity=email)
             refresh_token = create_refresh_token(identity=email)
-            return {"access_token": access_token, "refresh_token": refresh_token}, 200
+            return {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user_name": user.name
+            }, 200
         return {"message": "Invalid email or password."}, 401
+
 
 
 api.add_resource(LoginResource, "/login")
