@@ -2,11 +2,12 @@ import React from "react";
 import axios from "axios";
 import { Formik, Field, Form } from "formik";
 import Button from "react-bootstrap/Button";
+import "./NewuserForm.css"
 
 function NewUserForm() {
   return (
-    <div className="register-form">
-      <div className="register-content">
+    <div className="new-user-form">
+      <div className="new-user-content">
         <h1>Create New User:</h1>
         <Formik
           initialValues={{
