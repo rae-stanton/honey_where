@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"; // New import for useState
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function Logout({ setIsLoggedIn }) {
+function Logout({ setIsLoggedIn, setUserName }) {
   const navigate = useNavigate();
   const [error, setError] = useState(""); // State to store error message
 
@@ -21,6 +21,8 @@ function Logout({ setIsLoggedIn }) {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         setIsLoggedIn(false);
+        setUserName('');
+        localStorage.removeItem("user_name")
         navigate("/"); // Redirect to home
       } catch (error) {
         if (error.response && error.response.status === 401) {

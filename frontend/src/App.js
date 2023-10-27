@@ -22,7 +22,7 @@ function App() {
 
         {/* Routes here */}
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home userName={userName}/>} />
           <Route path="signup" element={<Signup />} />
           <Route
             path="login"
@@ -38,7 +38,7 @@ function App() {
           <Route
             path="logout"
             element={
-              <Logout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+              <Logout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setUserName={setUserName} />
             }
           />
         </Routes>
