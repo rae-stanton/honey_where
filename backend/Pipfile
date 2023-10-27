@@ -16,6 +16,8 @@ pytest-flask = "*"
 flask-restful = "*"
 "sqlalchemy.orm" = "*"
 flask-bcrypt = "*"
+flask-jwt-extended = "*"
+datetime = "*"
 
 [dev-packages]
 
