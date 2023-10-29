@@ -4,6 +4,7 @@ import { Formik, Field, Form } from "formik";
 import { Card, Button } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import Nav from "react-bootstrap/Nav";
+import "./LoginStyling.css"
 import "bootstrap/dist/css/bootstrap.min.css"; // Don't forget to import Bootstrap CSS
 
 function Login({ setIsLoggedIn, setUserName }) {
@@ -47,7 +48,7 @@ function Login({ setIsLoggedIn, setUserName }) {
         {({ isSubmitting }) => (
           <Card className="mt-5 w-80">
             <Card.Body>
-              <h4 className="text-center text-primary mb-4">Login</h4>
+              <h4 className="header-text text-center text-primary mb-4">Login</h4>
               <Form>
                 <div className="mb-3">
                   <label htmlFor="email" className="form-label">
@@ -77,13 +78,13 @@ function Login({ setIsLoggedIn, setUserName }) {
                 </div>
                 <Button
                   type="submit"
-                  className="w-100 mb-3"
+                  className="w-100 mb-3 login-button"
                   disabled={isSubmitting}
                 >
                   Login
                 </Button>
               </Form>
-              <p className="text-center">
+              <p className="text-center p-text-login">
                 Don't have an account?
                 <Nav.Link
                   as={Link}
