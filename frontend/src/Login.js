@@ -1,13 +1,17 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
-import { useState } from "react";
+import { Card, Button } from "react-bootstrap";
+import { Link } from 'react-router-dom';
+import Nav from "react-bootstrap/Nav";
+import "./LoginStyling.css"
+import "bootstrap/dist/css/bootstrap.min.css"; // Don't forget to import Bootstrap CSS
 
 function Login({ setIsLoggedIn, setUserName }) {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div className="d-flex justify-content-center align-items-center vh-100">
       <Formik
         initialValues={{
           email: "",
@@ -42,27 +46,56 @@ function Login({ setIsLoggedIn, setUserName }) {
         }}
       >
         {({ isSubmitting }) => (
-          <Form>
-            <label htmlFor="email">Email</label>
-            <Field
-              id="email"
-              name="email"
-              placeholder="Your email"
-              type="email"
-            />
-
-            <label htmlFor="password">Password</label>
-            <Field
-              id="password"
-              name="password"
-              placeholder="Your password"
-              type="password"
-            />
-
-            <button type="submit" disabled={isSubmitting}>
-              Login
-            </button>
-          </Form>
+          <Card className="mt-5 w-80">
+            <Card.Body>
+              <h4 className="header-text text-center text-primary mb-4">Login</h4>
+              <Form>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">
+                    Email
+                  </label>
+                  <Field
+                    as="input"
+                    id="email"
+                    name="email"
+                    placeholder="Your email"
+                    type="email"
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">
+                    Password
+                  </label>
+                  <Field
+                    as="input"
+                    id="password"
+                    name="password"
+                    placeholder="Your password"
+                    type="password"
+                    className="form-control"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-100 mb-3 login-button"
+                  disabled={isSubmitting}
+                >
+                  Login
+                </Button>
+              </Form>
+              <p className="text-center p-text-login">
+                Don't have an account?
+                <Nav.Link
+                  as={Link}
+                  to="/signup"
+                  className="text-primary ms-2 d-inline-block"
+                >
+                  Sign Up
+                </Nav.Link>
+              </p>
+            </Card.Body>
+          </Card>
         )}
       </Formik>
     </div>
