@@ -6,7 +6,7 @@ import "./NewUserForm.css";
 
 function NewUserForm() {
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
+    <div className="d-flex justify-content-center align-items-center vh-85">
       <Formik
         initialValues={{
           name: "",
@@ -35,7 +35,7 @@ function NewUserForm() {
         {({ isSubmitting }) => (
           <Card className="mt-5 w-80">
             <Card.Body>
-              <h4 className="header-text text-center text-primary mb-4">Sign Up:</h4>
+              <h4 className="header-text text-center text-primary mb-4 forms">Sign Up:</h4>
               <Form>
                 <div className="mb-3">
                   <label htmlFor="name" className="form-label">Name</label>
