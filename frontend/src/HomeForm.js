@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useFormik } from 'formik';
+import DismissibleSuccessAlert from './SuccessAlert';
 
 function AddHome() {
-    const token = localStorage.getItem('access_token'); // Assuming you stored it in local storage upon login
+    const token = localStorage.getItem('access_token');
+    const [showAlert, setShowAlert] = useState(false);
 
     const formik = useFormik({
         initialValues: {
@@ -17,6 +19,7 @@ function AddHome() {
                     }
                 });
                 setStatus(response.data.message);
+                setShowAlert(true);
             } catch (error) {
                 setStatus('An error occurred while adding your home.');
             } finally {
@@ -41,6 +44,7 @@ function AddHome() {
                 </button>
                 {formik.status && <p>{formik.status}</p>}
             </form>
+            {showAlert && <DismissibleSuccessAlert />}
         </div>
     );
 }
