@@ -231,29 +231,24 @@ api.add_resource(LogoutResource, '/logout')
 class AssignHomeResource(Resource):
     @jwt_required()
     def post(self):
-        # Get the authenticated user's email from the JWT token.
         current_user_email = get_jwt_identity()
         user = User.query.filter_by(email=current_user_email).first()
-
         if not user:
             return {"message": "User not found."}, 404
 
-        # Check if the user already has a home.
+        data = request.get_json()
+        home_name = data.get("name")
+
+        # Check if user already has a home
         if user.home:
             return {"message": "User already has a home."}, 400
 
-        # Get the home name from the request data.
-        data = request.get_json()
-        home_name = data.get("home_name")
-
-        # Create a new Home and associate it with the user.
         home = Home(name=home_name)
-        user.home = home
-
+        user.home = home  # Associate the user with the home
         db.session.add(home)
         db.session.commit()
 
-        return {"message": "Home created and assigned successfully!"}, 201
+        return {"message": f"Home {home_name} added successfully!"}, 201
 
 api.add_resource(AssignHomeResource, "/assign_home")
 
