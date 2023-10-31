@@ -83,7 +83,7 @@ function AddRoom() {
                                 <option value="KITCHEN" label="Kitchen" />
                                 <option value="BATHROOM" label="Bathroom" />
                                 <option value="GARAGE" label="Garage" />
-                                {/* Add more options as required */}
+                                <option value="ATTIC" label="Attic" />
                             </select>
                             {formik.touched.roomType && formik.errors.roomType ? (
                                 <div className="text-danger mt-2">{formik.errors.roomType}</div>

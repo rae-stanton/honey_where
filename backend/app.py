@@ -337,7 +337,7 @@ class AssignRoomResource(Resource):
         room_name = data.get("name")
         room_type = data.get("type")
 
-        # Validate room_type
+        # Validates room_type enum(even though it wants to complain)
         if not room_type:
             return {"message": "room_type is required"}, 400
         if room_type not in RoomType._member_names_:
@@ -346,9 +346,6 @@ class AssignRoomResource(Resource):
         # Ensure user has a home to assign the room to
         if not user.home:
             return {"message": "User does not have a home."}, 400
-
-        # Here, add logic to check if the room with the same name and type
-        # already exists for the user's home, if needed.
 
         room = Room(name=room_name, room_type=RoomType[room_type])
 
