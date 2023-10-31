@@ -325,6 +325,44 @@ class AssignHomeResource(Resource):
 api.add_resource(AssignHomeResource, "/assign_home")
 
 
+class AssignRoomResource(Resource):
+    @jwt_required()
+    def post(self):
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        if not user:
+            return {"message": "User not found."}, 404
+
+        data = request.get_json()
+        room_name = data.get("name")
+        room_type = data.get("type")
+
+        # Validate room_type
+        if not room_type:
+            return {"message": "room_type is required"}, 400
+        if room_type not in RoomType._member_names_:
+            return {"message": f"Invalid room_type. Allowed values are {list(RoomType._member_names_)}"}, 400
+
+        # Ensure user has a home to assign the room to
+        if not user.home:
+            return {"message": "User does not have a home."}, 400
+
+        # Here, add logic to check if the room with the same name and type
+        # already exists for the user's home, if needed.
+
+        room = Room(name=room_name, room_type=RoomType[room_type])
+
+        # Associate the room with the user's home
+        room.home_id = user.home.id
+        db.session.add(room)
+        db.session.commit()
+
+        return {"message": f"Room '{room_name}' added successfully to {user.home.name}!"}, 201
+
+
+api.add_resource(AssignRoomResource, "/assign_room")
+
+
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
     return jsonify({
