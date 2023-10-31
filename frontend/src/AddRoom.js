@@ -3,15 +3,18 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import DismissibleSuccessAlert from './SuccessAlert';
 import { Card, Button } from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';  // Import useNavigate
 
 function AddRoom() {
     const token = localStorage.getItem('access_token');
     const [showAlert, setShowAlert] = useState(false);
+    const [roomAdded, setRoomAdded] = useState(false);
+    const navigate = useNavigate();  // Use the useNavigate hook
 
     const formik = useFormik({
         initialValues: {
             roomName: '',
-            roomType: '',  // initialize room type
+            roomType: ''
         },
         validate: values => {
             const errors = {};
@@ -36,6 +39,7 @@ function AddRoom() {
                 });
                 setStatus(response.data.message);
                 setShowAlert(true);
+                setRoomAdded(true);
             } catch (error) {
                 setStatus('An error occurred while adding your room.');
             } finally {
@@ -44,57 +48,75 @@ function AddRoom() {
         }
     });
 
+    const handleAddMore = () => {
+        setRoomAdded(false);
+        formik.resetForm();
+    };
+
+    const handleFinish = () => {
+        navigate('/');  // Use navigate instead of history.push
+    };
+
     return (
         <div className="d-flex justify-content-center align-items-center vh-85">
             <Card className="mt-5 w-80 forms">
                 <Card.Body>
                     <h4 className="header-text text-center text-primary mb-4">Add A Room</h4>
-                    <form onSubmit={formik.handleSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="roomName" className="form-label">Room Name</label>
-                            <input
-                                id="roomName"
-                                name="roomName"
-                                type="text"
-                                placeholder="Enter Room Name"
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                value={formik.values.roomName}
-                                className="form-control"
-                            />
-                            {formik.touched.roomName && formik.errors.roomName ? (
-                                <div className="text-danger mt-2">{formik.errors.roomName}</div>
-                            ) : null}
-                        </div>
 
-                        <div className="mb-3">
-                            <label htmlFor="roomType" className="form-label">Room Type</label>
-                            <select
-                                id="roomType"
-                                name="roomType"
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                value={formik.values.roomType}
-                                className="form-control"
-                            >
-                                <option value="" label="Select room type" />
-                                <option value="BEDROOM" label="Bedroom" />
-                                <option value="LIVING_ROOM" label="Living Room" />
-                                <option value="KITCHEN" label="Kitchen" />
-                                <option value="BATHROOM" label="Bathroom" />
-                                <option value="GARAGE" label="Garage" />
-                                <option value="ATTIC" label="Attic" />
-                            </select>
-                            {formik.touched.roomType && formik.errors.roomType ? (
-                                <div className="text-danger mt-2">{formik.errors.roomType}</div>
-                            ) : null}
+                    {roomAdded ? (
+                        <div>
+                            <p>Room added successfully! Would you like to add another?</p>
+                            <Button className="login-button" onClick={handleAddMore}>Yes, add more</Button>
+                            <Button className="login-button" onClick={handleFinish}>No, I'm done</Button>
                         </div>
+                    ) : (
+                        <form onSubmit={formik.handleSubmit}>
+                            <div className="mb-3">
+                                <label htmlFor="roomName" className="form-label">Room Name</label>
+                                <input
+                                    id="roomName"
+                                    name="roomName"
+                                    type="text"
+                                    placeholder="Enter Room Name"
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.roomName}
+                                    className="form-control"
+                                />
+                                {formik.touched.roomName && formik.errors.roomName ? (
+                                    <div className="text-danger mt-2">{formik.errors.roomName}</div>
+                                ) : null}
+                            </div>
 
-                        <Button type="submit" className="w-100 mb-3 btn-primary login-button" disabled={formik.isSubmitting}>
-                            {formik.isSubmitting ? 'Adding...' : 'Add Room'}
-                        </Button>
-                        {formik.status && <p className="text-center p-text-login">{formik.status}</p>}
-                    </form>
+                            <div className="mb-3">
+                                <label htmlFor="roomType" className="form-label">Room Type</label>
+                                <select
+                                    id="roomType"
+                                    name="roomType"
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.roomType}
+                                    className="form-control"
+                                >
+                                    <option value="" label="Select room type" />
+                                    <option value="BEDROOM" label="Bedroom" />
+                                    <option value="LIVING_ROOM" label="Living Room" />
+                                    <option value="KITCHEN" label="Kitchen" />
+                                    <option value="BATHROOM" label="Bathroom" />
+                                    <option value="GARAGE" label="Garage" />
+                                </select>
+                                {formik.touched.roomType && formik.errors.roomType ? (
+                                    <div className="text-danger mt-2">{formik.errors.roomType}</div>
+                                ) : null}
+                            </div>
+
+                            <Button type="submit" className="w-100 mb-3 btn-primary login-button" disabled={formik.isSubmitting}>
+                                {formik.isSubmitting ? 'Adding...' : 'Add Room'}
+                            </Button>
+                            {formik.status && <p className="text-center p-text-login">{formik.status}</p>}
+                        </form>
+                    )}
+
                     {showAlert && <DismissibleSuccessAlert />}
                 </Card.Body>
             </Card>
@@ -103,9 +125,3 @@ function AddRoom() {
 }
 
 export default AddRoom;
-//     BEDROOM = "BEDROOM"
-//     BATHROOM = "BATHROOM"
-//     GARAGE = "GARAGE"
-//     KITCHEN = "KITCHEN"
-//     LIVING_ROOM = "LIVING_ROOM"
-//     ATTIC = "ATTIC"
