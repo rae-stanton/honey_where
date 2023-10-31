@@ -20,9 +20,8 @@ function Login({ setIsLoggedIn, setUserName }) {
     if (showAlert) {
       const timeout = setTimeout(() => {
         setShowAlert(false);
-      }, 5000); // 5 seconds
+      }, 5000);
 
-      // Cleanup to avoid memory leaks if component is unmounted
       return () => clearTimeout(timeout);
     }
   }, [showAlert]);
