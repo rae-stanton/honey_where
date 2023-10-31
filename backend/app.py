@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-from models import db, User, Home, Room, bcrypt
+from models import db, User, Home, Room, RoomType, bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
@@ -170,6 +170,7 @@ api.add_resource(HomeById, "/homes/<int:home_id>")
 
 # Rooms:
 
+
 class RoomResource(Resource):
     def get(self):
         rooms = Room.query.all()
@@ -182,11 +183,13 @@ class RoomResource(Resource):
         room_type = data.get('room_type')
         home_id = data.get('home_id')
 
-        room = Room(name=room_name, description=description, room_type=room_type, home_id=home_id)
+        room = Room(name=room_name, description=description,
+                    room_type=room_type, home_id=home_id)
 
         db.session.add(room)
         db.session.commit()
         return {"message": "Room created successfully!", "room": room.to_dict()}, 201
+
 
 api.add_resource(RoomResource, "/rooms")
 
@@ -198,7 +201,7 @@ class RoomByIdResource(Resource):
             return {"message": "Room not found."}, 404
         return jsonify(room.to_dict())
 
-    def put(self, room_id):
+    def patch(self, room_id):
         room = Room.query.get(room_id)
         if not room:
             return {"message": "Room not found."}, 404
@@ -209,8 +212,15 @@ class RoomByIdResource(Resource):
         if 'description' in data:
             room.description = data['description']
         if 'room_type' in data:
+            # Validate if the provided room_type is a valid enum value
+            if data['room_type'] not in RoomType.__members__:
+                return {"message": f"Invalid room_type. Allowed values are: {', '.join(RoomType.__members__)}."}, 400
             room.room_type = data['room_type']
         if 'home_id' in data:
+            # Check if the provided home_id exists before assigning
+            home_exists = Home.query.get(data['home_id'])
+            if not home_exists:
+                return {"message": "Home with provided home_id not found."}, 404
             room.home_id = data['home_id']
 
         db.session.commit()
@@ -224,6 +234,7 @@ class RoomByIdResource(Resource):
         db.session.delete(room)
         db.session.commit()
         return {"message": "Room deleted successfully!"}, 200
+
 
 api.add_resource(RoomByIdResource, "/rooms/<int:room_id>")
 
@@ -287,6 +298,7 @@ api.add_resource(LogoutResource, '/logout')
 # This endpoint is only for authenticated users - to edit the home, still use resource from above
 # To perform crud actions on a home
 
+
 class AssignHomeResource(Resource):
     @jwt_required()
     def post(self):
@@ -309,7 +321,9 @@ class AssignHomeResource(Resource):
 
         return {"message": f"Home {home_name} added successfully!"}, 201
 
+
 api.add_resource(AssignHomeResource, "/assign_home")
+
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):

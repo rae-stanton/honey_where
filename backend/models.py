@@ -70,7 +70,7 @@ class Home(db.Model):
             "id": self.id,
             "name": self.name,
             "user_ids": [user.id for user in self.users],
-            "room_ids": [room.id for room in self.rooms]
+            "room_ids": [room.to_dict() for room in self.rooms]
         }
 
     def __repr__(self):
