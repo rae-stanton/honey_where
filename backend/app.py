@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-from models import db, User, Home, bcrypt
+from models import db, User, Home, Room, RoomType, bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
@@ -168,6 +168,76 @@ class HomeById(Resource):
 
 api.add_resource(HomeById, "/homes/<int:home_id>")
 
+# Rooms:
+
+
+class RoomResource(Resource):
+    def get(self):
+        rooms = Room.query.all()
+        return jsonify({"rooms": [room.to_dict() for room in rooms]})
+
+    def post(self):
+        data = request.get_json()
+        room_name = data.get('name')
+        description = data.get('description')
+        room_type = data.get('room_type')
+        home_id = data.get('home_id')
+
+        room = Room(name=room_name, description=description,
+                    room_type=room_type, home_id=home_id)
+
+        db.session.add(room)
+        db.session.commit()
+        return {"message": "Room created successfully!", "room": room.to_dict()}, 201
+
+
+api.add_resource(RoomResource, "/rooms")
+
+
+class RoomByIdResource(Resource):
+    def get(self, room_id):
+        room = Room.query.get(room_id)
+        if not room:
+            return {"message": "Room not found."}, 404
+        return jsonify(room.to_dict())
+
+    def patch(self, room_id):
+        room = Room.query.get(room_id)
+        if not room:
+            return {"message": "Room not found."}, 404
+
+        data = request.get_json()
+        if 'name' in data:
+            room.name = data['name']
+        if 'description' in data:
+            room.description = data['description']
+        if 'room_type' in data:
+            # Validate if the provided room_type is a valid enum value
+            if data['room_type'] not in RoomType.__members__:
+                return {"message": f"Invalid room_type. Allowed values are: {', '.join(RoomType.__members__)}."}, 400
+            room.room_type = data['room_type']
+        if 'home_id' in data:
+            # Check if the provided home_id exists before assigning
+            home_exists = Home.query.get(data['home_id'])
+            if not home_exists:
+                return {"message": "Home with provided home_id not found."}, 404
+            room.home_id = data['home_id']
+
+        db.session.commit()
+        return {"message": "Room updated successfully!", "room": room.to_dict()}, 200
+
+    def delete(self, room_id):
+        room = Room.query.get(room_id)
+        if not room:
+            return {"message": "Room not found."}, 404
+
+        db.session.delete(room)
+        db.session.commit()
+        return {"message": "Room deleted successfully!"}, 200
+
+
+api.add_resource(RoomByIdResource, "/rooms/<int:room_id>")
+
 
 class TokenRefreshResource(Resource):
     @jwt_required(refresh=True)
@@ -228,6 +298,7 @@ api.add_resource(LogoutResource, '/logout')
 # This endpoint is only for authenticated users - to edit the home, still use resource from above
 # To perform crud actions on a home
 
+
 class AssignHomeResource(Resource):
     @jwt_required()
     def post(self):
@@ -250,7 +321,44 @@ class AssignHomeResource(Resource):
 
         return {"message": f"Home {home_name} added successfully!"}, 201
 
+
 api.add_resource(AssignHomeResource, "/assign_home")
+
+
+class AssignRoomResource(Resource):
+    @jwt_required()
+    def post(self):
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        if not user:
+            return {"message": "User not found."}, 404
+
+        data = request.get_json()
+        room_name = data.get("name")
+        room_type = data.get("type")
+
+        # Validates room_type enum(even though it wants to complain)
+        if not room_type:
+            return {"message": "room_type is required"}, 400
+        if room_type not in RoomType._member_names_:
+            return {"message": f"Invalid room_type. Allowed values are {list(RoomType._member_names_)}"}, 400
+
+        # Ensure user has a home to assign the room to
+        if not user.home:
+            return {"message": "User does not have a home."}, 400
+
+        room = Room(name=room_name, room_type=RoomType[room_type])
+
+        # Associate the room with the user's home
+        room.home_id = user.home.id
+        db.session.add(room)
+        db.session.commit()
+
+        return {"message": f"Room '{room_name}' added successfully to {user.home.name}!"}, 201
+
+
+api.add_resource(AssignRoomResource, "/assign_room")
+
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):

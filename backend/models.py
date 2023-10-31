@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy.orm import validates
 from flask_bcrypt import Bcrypt
-
+from enum import Enum
 # Instantiating bcrypt here
 bcrypt = Bcrypt()
 
@@ -18,7 +18,8 @@ class User(db.Model):
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     hashed_password = db.Column(db.String(128), nullable=False)
-    home_id = db.Column(db.Integer, db.ForeignKey("homes.id", ondelete="SET NULL"))
+    home_id = db.Column(db.Integer, db.ForeignKey(
+        "homes.id", ondelete="SET NULL"))
     home = db.relationship("Home", back_populates="users")
 
     def to_dict(self):
@@ -49,8 +50,10 @@ class User(db.Model):
         if not isinstance(email, str):
             raise AssertionError("Email must be a string")
         if len(email) < 2:
-            raise AssertionError("Email must be a minimum of 2 characters long")
+            raise AssertionError(
+                "Email must be a minimum of 2 characters long")
         return email
+
     def __repr__(self):
         return f'(id={self.id}, name={self.name} email={self.email})'
 
@@ -60,24 +63,52 @@ class Home(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     users = db.relationship("User", back_populates="home")
+    rooms = db.relationship("Room", back_populates="home")
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
-            "user_ids": [user.id for user in self.users]
+            "user_ids": [user.id for user in self.users],
+            "room_ids": [room.to_dict() for room in self.rooms]
         }
 
     def __repr__(self):
         return f'(id={self.id}, name={self.name})'
 
 
+class RoomType(Enum):
+    BEDROOM = "BEDROOM"
+    BATHROOM = "BATHROOM"
+    GARAGE = "GARAGE"
+    KITCHEN = "KITCHEN"
+    LIVING_ROOM = "LIVING_ROOM"
+    ATTIC = "ATTIC"
+
+
+# Create a PostgreSQL enum type using SQLAlchemy
+room_type_enum = db.Enum(RoomType, name="roomtype")
+
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
-    # home_id = db.Column(db.Integer, db.ForeignKey('home.id'))
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=True)
+    room_type = db.Column(room_type_enum, nullable=False)
+    home_id = db.Column(db.Integer, db.ForeignKey('homes.id'), nullable=False)
+    home = db.relationship('Home', back_populates='rooms')
 
-    # home = db.relationship('Home', back_populates='rooms')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'room_type': self.room_type.value if self.room_type else None,
+            'home_id': self.home_id
+        }
+
+    def __repr__(self):
+        return f"<Room(id={self.id}, name={self.name}, room_type={self.room_type})>"
 
 
 class Subroom(db.Model):

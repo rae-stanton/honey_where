@@ -7,6 +7,7 @@ import Signup from "./Signup";
 import Login from "./Login";
 import Logout from "./Logout";
 import AddHome from "./HomeForm";
+import AddRoom from "./AddRoom";
 import PrivateRouteWrapper from "./PrivateRouteWrapper";
 import { useState } from "react";
 
@@ -56,6 +57,14 @@ function App() {
             element={
               <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
                 <AddHome />
+              </PrivateRouteWrapper>
+            }
+          />
+          <Route
+            path="add-room"
+            element={
+              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                <AddRoom />
               </PrivateRouteWrapper>
             }
           />
