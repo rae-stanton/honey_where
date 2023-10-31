@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-from models import db, User, Home, bcrypt
+from models import db, User, Home, Room, bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
@@ -167,6 +167,65 @@ class HomeById(Resource):
 
 
 api.add_resource(HomeById, "/homes/<int:home_id>")
+
+# Rooms:
+
+class RoomResource(Resource):
+    def get(self):
+        rooms = Room.query.all()
+        return jsonify({"rooms": [room.to_dict() for room in rooms]})
+
+    def post(self):
+        data = request.get_json()
+        room_name = data.get('name')
+        description = data.get('description')
+        room_type = data.get('room_type')
+        home_id = data.get('home_id')
+
+        room = Room(name=room_name, description=description, room_type=room_type, home_id=home_id)
+
+        db.session.add(room)
+        db.session.commit()
+        return {"message": "Room created successfully!", "room": room.to_dict()}, 201
+
+api.add_resource(RoomResource, "/rooms")
+
+
+class RoomByIdResource(Resource):
+    def get(self, room_id):
+        room = Room.query.get(room_id)
+        if not room:
+            return {"message": "Room not found."}, 404
+        return jsonify(room.to_dict())
+
+    def put(self, room_id):
+        room = Room.query.get(room_id)
+        if not room:
+            return {"message": "Room not found."}, 404
+
+        data = request.get_json()
+        if 'name' in data:
+            room.name = data['name']
+        if 'description' in data:
+            room.description = data['description']
+        if 'room_type' in data:
+            room.room_type = data['room_type']
+        if 'home_id' in data:
+            room.home_id = data['home_id']
+
+        db.session.commit()
+        return {"message": "Room updated successfully!", "room": room.to_dict()}, 200
+
+    def delete(self, room_id):
+        room = Room.query.get(room_id)
+        if not room:
+            return {"message": "Room not found."}, 404
+
+        db.session.delete(room)
+        db.session.commit()
+        return {"message": "Room deleted successfully!"}, 200
+
+api.add_resource(RoomByIdResource, "/rooms/<int:room_id>")
 
 
 class TokenRefreshResource(Resource):
