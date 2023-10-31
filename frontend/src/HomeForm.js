@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useFormik } from 'formik';
-import { Card, Button } from "react-bootstrap";
 import DismissibleSuccessAlert from './SuccessAlert';
+import { Card, Button } from "react-bootstrap";
 
 function AddHome() {
     const token = localStorage.getItem('access_token');
     const [showAlert, setShowAlert] = useState(false);
 
+    // Validation function
+    const validate = values => {
+        const errors = {};
+
+        if (!values.homeName) {
+            errors.homeName = 'Home name cannot be blank';
+        }
+
+        return errors;
+    };
+
     const formik = useFormik({
         initialValues: {
             homeName: '',
         },
+        validate, // Add the validation function here
         onSubmit: async (values, { setSubmitting, setStatus }) => {
             try {
                 const response = await axios.post('http://127.0.0.1:5000/assign_home', { name: values.homeName }, {
@@ -36,29 +48,27 @@ function AddHome() {
                     <h4 className="header-text text-center text-primary mb-4">Add Your Home</h4>
                     <form onSubmit={formik.handleSubmit}>
                         <div className="mb-3">
-                            <label htmlFor="homeName" className="form-label">
-                                Home Name
-                            </label>
+                            <label htmlFor="homeName" className="form-label">Home Name</label>
                             <input
                                 id="homeName"
                                 name="homeName"
                                 type="text"
                                 placeholder="Enter Home Name"
                                 onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
                                 value={formik.values.homeName}
                                 className="form-control"
                             />
+                            {formik.touched.homeName && formik.errors.homeName ? (
+                                <div className="text-danger mt-2">{formik.errors.homeName}</div>
+                            ) : null}
                         </div>
-                        <Button
-                            type="submit"
-                            className="w-100 mb-3 login-button"
-                            // using for styling
-                            disabled={formik.isSubmitting}
-                        >
+
+                        <Button type="submit" className="w-100 mb-3 btn-primary login-button" disabled={formik.isSubmitting}>
                             {formik.isSubmitting ? 'Adding...' : 'Add Home'}
                         </Button>
+                        {formik.status && <p className="text-center p-text-login">{formik.status}</p>}
                     </form>
-                    {formik.status && <p className="text-center p-text-login">{formik.status}</p>}
                     {showAlert && <DismissibleSuccessAlert />}
                 </Card.Body>
             </Card>
