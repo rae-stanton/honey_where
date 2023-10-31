@@ -78,12 +78,13 @@ class Home(db.Model):
 
 
 class RoomType(Enum):
-    BEDROOM = "Bedroom"
-    BATHROOM = "Bathroom"
-    GARAGE = "Garage"
-    KITCHEN = "Kitchen"
-    LIVING_ROOM = "Living Room"
-    ATTIC = "Attic"
+    BEDROOM = "BEDROOM"
+    BATHROOM = "BATHROOM"
+    GARAGE = "GARAGE"
+    KITCHEN = "KITCHEN"
+    LIVING_ROOM = "LIVING_ROOM"
+    ATTIC = "ATTIC"
+
 
 # Create a PostgreSQL enum type using SQLAlchemy
 room_type_enum = db.Enum(RoomType, name="roomtype")
@@ -94,16 +95,18 @@ class Room(db.Model):
     description = db.Column(db.String, nullable=True)
     room_type = db.Column(room_type_enum, nullable=False)
     home_id = db.Column(db.Integer, db.ForeignKey('homes.id'), nullable=False)
-    home = db.relationship('Home', backref=db.backref('rooms', lazy=True))
+    home = db.relationship('Home', back_populates='rooms')
+
 
     def to_dict(self):
         return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'room_type': self.room_type,
+            'room_type': self.room_type.value if self.room_type else None,
             'home_id': self.home_id
         }
+
     def __repr__(self):
         return f"<Room(id={self.id}, name={self.name}, room_type={self.room_type})>"
 
