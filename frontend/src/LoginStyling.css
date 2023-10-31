@@ -14,3 +14,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Corrected soft shadow */
   font-family: "Nunito", sans-serif !important;
 }
+
+.forms {
+  width: 400px;
+}

@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-from models import db, User, bcrypt
+from models import db, User, Home, bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
@@ -106,6 +106,68 @@ class UserById(Resource):
 
 api.add_resource(UserById, "/users/<int:user_id>")
 
+# Homes routes
+
+
+class HomeResource(Resource):
+    def get(self):
+        homes = Home.query.all()
+        return jsonify({"homes": [home.to_dict() for home in homes]})
+
+    def post(self):
+        data = request.get_json()
+
+        user = User.query.filter_by(id=data.get("user_id")).first()
+        if not user:
+            return {"message": "user not found"}, 404
+        home = Home(name=data.get("name"))
+
+        user.home = home   # Associate the user with the created home
+
+        db.session.add(home)
+        db.session.commit()
+
+        return {"message": "Home added successfully!"}
+
+
+api.add_resource(HomeResource, "/homes")
+
+
+class HomeById(Resource):
+    def get(self, home_id):
+        home = Home.query.get(home_id)
+        if not home:
+            return {"message": "Home not found."}, 404
+        return jsonify(home.to_dict())
+
+    def patch(self, home_id):
+        data = request.get_json()
+
+        # Fetch the home by ID
+        home = Home.query.get(home_id)
+        if not home:
+            return {"message": "Home not found."}, 404
+
+        # Update fields if provided
+        if 'name' in data:
+            home.name = data['name']
+
+        db.session.commit()
+
+        return {"message": "Home updated successfully!", "home": home.to_dict()}, 200
+
+    def delete(self, home_id):
+        home = Home.query.get(home_id)
+        if not home:
+            return {"message": "Home not found."}, 404
+
+        db.session.delete(home)
+        db.session.commit()
+        return {"message": "Home deleted successfully!"}, 200
+
+
+api.add_resource(HomeById, "/homes/<int:home_id>")
+
 
 class TokenRefreshResource(Resource):
     @jwt_required(refresh=True)
@@ -113,6 +175,7 @@ class TokenRefreshResource(Resource):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity=current_user)
         return {"access_token": access_token}, 200
+
 
 api.add_resource(TokenRefreshResource, "/token/refresh")
 
@@ -131,7 +194,6 @@ class LoginResource(Resource):
                 "user_name": user.name
             }, 200
         return {"message": "Invalid email or password."}, 401
-
 
 
 api.add_resource(LoginResource, "/login")
@@ -162,6 +224,33 @@ class LogoutResource(Resource):
 
 api.add_resource(LogoutResource, '/logout')
 
+# Adds ability for "current user to add their home's name if they don't have one"
+# This endpoint is only for authenticated users - to edit the home, still use resource from above
+# To perform crud actions on a home
+
+class AssignHomeResource(Resource):
+    @jwt_required()
+    def post(self):
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        if not user:
+            return {"message": "User not found."}, 404
+
+        data = request.get_json()
+        home_name = data.get("name")
+
+        # Check if user already has a home
+        if user.home:
+            return {"message": "User already has a home."}, 400
+
+        home = Home(name=home_name)
+        user.home = home  # Associate the user with the home
+        db.session.add(home)
+        db.session.commit()
+
+        return {"message": f"Home {home_name} added successfully!"}, 201
+
+api.add_resource(AssignHomeResource, "/assign_home")
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):

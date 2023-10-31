@@ -11,7 +11,7 @@ function Login({ setIsLoggedIn, setUserName }) {
   const navigate = useNavigate();
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
+    <div className="d-flex justify-content-center align-items-center vh-85">
       <Formik
         initialValues={{
           email: "",
@@ -46,7 +46,7 @@ function Login({ setIsLoggedIn, setUserName }) {
         }}
       >
         {({ isSubmitting }) => (
-          <Card className="mt-5 w-80">
+          <Card className="mt-5 w-80 forms">
             <Card.Body>
               <h4 className="header-text text-center text-primary mb-4">Login</h4>
               <Form>

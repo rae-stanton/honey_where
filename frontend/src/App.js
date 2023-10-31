@@ -6,6 +6,8 @@ import AppNavbar from "./AppNavbar";
 import Signup from "./Signup";
 import Login from "./Login";
 import Logout from "./Logout";
+import AddHome from "./HomeForm";
+import PrivateRouteWrapper from "./PrivateRouteWrapper";
 import { useState } from "react";
 
 function App() {
@@ -18,11 +20,15 @@ function App() {
     <Router>
       <div>
         {/* NavBar import */}
-        <AppNavbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userName={userName}/>
+        <AppNavbar
+          isLoggedIn={isLoggedIn}
+          setIsLoggedIn={setIsLoggedIn}
+          userName={userName}
+        />
 
         {/* Routes here */}
         <Routes>
-          <Route path="/" element={<Home userName={userName}/>} />
+          <Route path="/" element={<Home userName={userName} />} />
           <Route path="signup" element={<Signup />} />
           <Route
             path="login"
@@ -38,7 +44,19 @@ function App() {
           <Route
             path="logout"
             element={
-              <Logout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setUserName={setUserName} />
+              <Logout
+                isLoggedIn={isLoggedIn}
+                setIsLoggedIn={setIsLoggedIn}
+                setUserName={setUserName}
+              />
+            }
+          />
+          <Route
+            path="add-home"
+            element={
+              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                <AddHome />
+              </PrivateRouteWrapper>
             }
           />
         </Routes>

@@ -18,11 +18,15 @@ class User(db.Model):
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     hashed_password = db.Column(db.String(128), nullable=False)
+    home_id = db.Column(db.Integer, db.ForeignKey("homes.id", ondelete="SET NULL"))
+    home = db.relationship("Home", back_populates="users")
 
     def to_dict(self):
         return {
             "id": self.id,
-            "name": self.name
+            "name": self.name,
+            "email": self.email,
+            "home_id": self.home_id
         }
 
     def set_password(self, password):
@@ -52,11 +56,20 @@ class User(db.Model):
 
 
 class Home(db.Model):
+    __tablename__ = "homes"
     id = db.Column(db.Integer, primary_key=True)
-    # users = db.relationship("User", back_populates="home")
+    name = db.Column(db.String, nullable=False)
+    users = db.relationship("User", back_populates="home")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "user_ids": [user.id for user in self.users]
+        }
 
     def __repr__(self):
-        return f'(id={self.id})'
+        return f'(id={self.id}, name={self.name})'
 
 
 class Room(db.Model):
