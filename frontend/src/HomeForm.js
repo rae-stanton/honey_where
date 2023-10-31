@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useFormik } from 'formik';
+import { Card, Button } from "react-bootstrap";
 import DismissibleSuccessAlert from './SuccessAlert';
 
 function AddHome() {
@@ -29,22 +30,37 @@ function AddHome() {
     });
 
     return (
-        <div>
-            <h2>Add Your Home</h2>
-            <form onSubmit={formik.handleSubmit}>
-                <input
-                    name="homeName"
-                    type="text"
-                    placeholder="Enter Home Name"
-                    onChange={formik.handleChange}
-                    value={formik.values.homeName}
-                />
-                <button type="submit" disabled={formik.isSubmitting}>
-                    {formik.isSubmitting ? 'Adding...' : 'Add Home'}
-                </button>
-                {formik.status && <p>{formik.status}</p>}
-            </form>
-            {showAlert && <DismissibleSuccessAlert />}
+        <div className="d-flex justify-content-center align-items-center vh-85">
+            <Card className="mt-5 w-80 forms">
+                <Card.Body>
+                    <h4 className="header-text text-center text-primary mb-4">Add Your Home</h4>
+                    <form onSubmit={formik.handleSubmit}>
+                        <div className="mb-3">
+                            <label htmlFor="homeName" className="form-label">
+                                Home Name
+                            </label>
+                            <input
+                                id="homeName"
+                                name="homeName"
+                                type="text"
+                                placeholder="Enter Home Name"
+                                onChange={formik.handleChange}
+                                value={formik.values.homeName}
+                                className="form-control"
+                            />
+                        </div>
+                        <Button
+                            type="submit"
+                            className="w-100 mb-3 login-button"
+                            disabled={formik.isSubmitting}
+                        >
+                            {formik.isSubmitting ? 'Adding...' : 'Add Home'}
+                        </Button>
+                    </form>
+                    {formik.status && <p className="text-center p-text-login">{formik.status}</p>}
+                    {showAlert && <DismissibleSuccessAlert />}
+                </Card.Body>
+            </Card>
         </div>
     );
 }
