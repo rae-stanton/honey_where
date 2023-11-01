@@ -124,10 +124,28 @@ class Subroom(db.Model):
     rooms = db.relationship(
         'Room', secondary=room_subroom_association, back_populates='subrooms')
 
+class ItemType(Enum):
+    HOUSEHOLD = "HOUSEHOLD"
+    DECORATION = "DECORATION"
+    TOOL = "TOOL"
+    UTENSIL = "UTENSIL"
+    APPLIANCE = "APPLIANCE"
+    PHOTO = "PHOTO"
+    PERSONAL = "PERSONAL"
+    ELECTRONIC = "ELECTRONIC"
+    CLOTHING = "CLOTHING"
+    PET = "PET"
+    MISCELLANEOUS = "MISCELLANEOUS"
+
+
+# Create a PostgreSQL enum type using SQLAlchemy
+item_type_enum = db.Enum(ItemType, name="itemtype")
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
+    description = db.Column(db.String(128))
+    item_type = db.Column(item_type_enum, nullable=False)
     # subroom_id = db.Column(db.Integer, db.ForeignKey("subroom.id"))
 
     # subroom = db.relationship("Subroom", back_populates="items")
