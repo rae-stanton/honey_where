@@ -106,18 +106,23 @@ class Room(db.Model):
         'Subroom', secondary=room_subroom_association, back_populates='rooms')
     items = db.relationship('RoomItems', back_populates='room')
 
-    def to_dict(self):
-        return {
+    def to_dict(self, include_items=False):
+        room_dict = {
             'id': self.id,
             'name': self.name,
             'description': self.description,
             'room_type': self.room_type.value if self.room_type else None,
             'home_id': self.home_id,
-            'items': [room_item.item.to_dict() for room_item in self.items]
         }
+
+        if include_items:
+            room_dict['items'] = [room_item.item.to_dict() for room_item in self.items]
+
+        return room_dict
 
     def __repr__(self):
         return f"<Room(id={self.id}, name={self.name}, room_type={self.room_type})>"
+
 
 
 class Subroom(db.Model):

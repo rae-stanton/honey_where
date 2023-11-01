@@ -186,7 +186,7 @@ api.add_resource(HomeById, "/homes/<int:home_id>")
 class RoomResource(Resource):
     def get(self):
         rooms = Room.query.all()
-        return jsonify({"rooms": [room.to_dict() for room in rooms]})
+        return jsonify({"rooms": [room.to_dict(include_items=True) for room in rooms]})
 
     def post(self):
         data = request.get_json()
@@ -211,7 +211,8 @@ class RoomByIdResource(Resource):
         room = Room.query.get(room_id)
         if not room:
             return {"message": "Room not found."}, 404
-        return jsonify(room.to_dict())
+        return jsonify(room.to_dict(include_items=True))
+
 
     def patch(self, room_id):
         room = Room.query.get(room_id)
@@ -282,6 +283,42 @@ class ItemResource(Resource):
 
 
 api.add_resource(ItemResource, "/items")
+
+class RoomItemsResource(Resource):
+    def get(self, room_id=None):
+        if room_id:
+            room_items = RoomItems.query.filter_by(room_id=room_id).all()
+            return jsonify({"items": [room_item.to_dict() for room_item in room_items]})
+        else:
+            room_items = RoomItems.query.all()
+            return jsonify({"room_items": [room_item.to_dict() for room_item in room_items]})
+
+    def post(self):
+        data = request.get_json()
+        room_id = data.get('room_id')
+        item_id = data.get('item_id')
+
+        # Check if the room-item association already exists
+        existing = RoomItems.query.filter_by(room_id=room_id, item_id=item_id).first()
+        if existing:
+            return {"message": "The item is already associated with the room."}, 400
+
+        room_item = RoomItems(room_id=room_id, item_id=item_id)
+        db.session.add(room_item)
+        db.session.commit()
+        return {"message": "Item added to room successfully!", "room_item": room_item.to_dict()}, 201
+
+    def delete(self, room_id, item_id):
+        room_item = RoomItems.query.filter_by(room_id=room_id, item_id=item_id).first()
+        if not room_item:
+            return {"message": "Room-Item association not found."}, 404
+
+        db.session.delete(room_item)
+        db.session.commit()
+        return {"message": "Item removed from room successfully!"}, 200
+
+api.add_resource(RoomItemsResource, "/room-items", "/room-items/<int:room_id>")
+
 
 class TokenRefreshResource(Resource):
     @jwt_required(refresh=True)
