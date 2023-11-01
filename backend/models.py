@@ -76,6 +76,11 @@ class Home(db.Model):
     def __repr__(self):
         return f'(id={self.id}, name={self.name})'
 
+room_subroom_association = db.Table(
+    'room_subroom',
+    db.Column('room_id', db.Integer, db.ForeignKey('room.id')),
+    db.Column('subroom_id', db.Integer, db.ForeignKey('subroom.id'))
+)
 
 class RoomType(Enum):
     BEDROOM = "BEDROOM"
@@ -89,6 +94,7 @@ class RoomType(Enum):
 # Create a PostgreSQL enum type using SQLAlchemy
 room_type_enum = db.Enum(RoomType, name="roomtype")
 
+
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -96,7 +102,8 @@ class Room(db.Model):
     room_type = db.Column(room_type_enum, nullable=False)
     home_id = db.Column(db.Integer, db.ForeignKey('homes.id'), nullable=False)
     home = db.relationship('Home', back_populates='rooms')
-
+    subrooms = db.relationship(
+        'Subroom', secondary=room_subroom_association, back_populates='rooms')
 
     def to_dict(self):
         return {
@@ -114,9 +121,8 @@ class Room(db.Model):
 class Subroom(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
-    # room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
-
-    # room = db.relationship("Room", back_populates="subrooms")
+    rooms = db.relationship(
+        'Room', secondary=room_subroom_association, back_populates='subrooms')
 
 
 class Item(db.Model):

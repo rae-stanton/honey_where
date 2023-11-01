@@ -73,10 +73,22 @@ api.add_resource(Users, "/users")
 
 class UserById(Resource):
     def get(self, user_id):
+        print(f"Fetching data for user with ID: {user_id}")
         user = User.query.get(user_id)
         if not user:
             return {"message": "User not found."}, 404
-        return jsonify(user.to_dict())
+
+        user_data = user.to_dict()
+
+        if user.home:
+            user_data['home'] = user.home.to_dict()
+            user_data['home']['rooms'] = [room.to_dict()
+                                          for room in user.home.rooms]
+
+            # Note: We've removed the unnecessary loop for rooms.
+            # If you have other processing to do with each room, you can reintroduce it.
+
+        return jsonify(user_data)
 
     def patch(self, user_id):
         data = request.get_json()
@@ -358,6 +370,31 @@ class AssignRoomResource(Resource):
 
 
 api.add_resource(AssignRoomResource, "/assign_room")
+
+
+class UserHomeDetailsResource(Resource):
+    @jwt_required()
+    def get(self):
+        print(request.headers)
+
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        if not user:
+            return {"message": "User not found."}, 404
+
+        if not user.home:
+            return {"message": "User does not have a home."}, 400
+
+        # Extract the home and room details
+        home_details = {
+            "name": user.home.name,
+            "rooms": [{"id": room.id, "name": room.name, "room_type": room.room_type.value} for room in user.home.rooms]
+        }
+
+        return {"home": home_details}, 200
+
+
+api.add_resource(UserHomeDetailsResource, "/user_home_details")
 
 
 @jwt.invalid_token_loader
