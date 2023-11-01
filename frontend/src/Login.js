@@ -66,7 +66,7 @@ function Login({ setIsLoggedIn, setUserName, setUserId }) {
                 setIsLoggedIn(true);
                 setUserName(response.data.user_name);
                 setUserId(response.data.user_id)
-                navigate("/"); // Redirect to home
+                navigate("/dashboard"); // Redirect to home
               } else {
                 alert("Login failed");
               }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-function UserDash() {
+function UserDash({userName}) {
   const token = localStorage.getItem("access_token");
   const [userData, setUserData] = useState(null);
 
@@ -35,7 +35,7 @@ function UserDash() {
 
   return (
     <div className="dashboard">
-      <h2>Welcome back, {userData.name}</h2>
+      <h2>Welcome back, {userName}</h2>
 
       {userData.home && (
         <div className="home-details">

@@ -76,7 +76,7 @@ function App() {
             path="dashboard"
             element={
               <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                <UserDash />
+                <UserDash userName={userName}/>
               </PrivateRouteWrapper>
             }
           />
