@@ -8,6 +8,7 @@ import Login from "./Login";
 import Logout from "./Logout";
 import AddHome from "./HomeForm";
 import AddRoom from "./AddRoom";
+import AddItem from "./AddItem";
 import UserDash from "./UserDash";
 import PrivateRouteWrapper from "./PrivateRouteWrapper";
 import { useState } from "react";
@@ -73,10 +74,18 @@ function App() {
             }
           />
           <Route
+            path="add-item"
+            element={
+              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                <AddItem />
+              </PrivateRouteWrapper>
+            }
+          />
+          <Route
             path="dashboard"
             element={
               <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                <UserDash userName={userName}/>
+                <UserDash userName={userName} />
               </PrivateRouteWrapper>
             }
           />
