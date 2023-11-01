@@ -273,6 +273,7 @@ class SubroomResource(Resource):
         db.session.commit()
         return {"message": "Subroom created successfully!", "subroom": subroom.to_dict()}, 201
 
+
 api.add_resource(SubroomResource, "/subrooms")
 
 
@@ -380,10 +381,12 @@ class RoomItemsResource(Resource):
         db.session.commit()
         return {"message": "Item added to room successfully!", "room_item": room_item.to_dict()}, 201
 
+
 class RoomItemsByIdResource(Resource):
     def get(self, room_id=None, item_id=None):
         if room_id and item_id:
-            room_item = RoomItems.query.filter_by(room_id=room_id, item_id=item_id).first()
+            room_item = RoomItems.query.filter_by(
+                room_id=room_id, item_id=item_id).first()
             if not room_item:
                 return {"message": "Room-Item association not found."}, 404
             return room_item.to_dict(), 200
@@ -398,7 +401,6 @@ class RoomItemsByIdResource(Resource):
             print(room_items)
             return {"room_items": [room_item.to_dict() for room_item in room_items]}, 200
 
-
     def delete(self, room_id, item_id):
         room_item = RoomItems.query.filter_by(
             room_id=room_id, item_id=item_id).first()
@@ -412,6 +414,7 @@ class RoomItemsByIdResource(Resource):
 
 api.add_resource(RoomItemsResource, "/room-items")
 api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>")
+
 
 class TokenRefreshResource(Resource):
     @jwt_required(refresh=True)
@@ -537,8 +540,6 @@ api.add_resource(AssignRoomResource, "/assign_room")
 class UserHomeDetailsResource(Resource):
     @jwt_required()
     def get(self):
-        print(request.headers)
-
         current_user_email = get_jwt_identity()
         user = User.query.filter_by(email=current_user_email).first()
         if not user:
@@ -550,8 +551,39 @@ class UserHomeDetailsResource(Resource):
         # Extract the home and room details
         home_details = {
             "name": user.home.name,
-            "rooms": [{"id": room.id, "name": room.name, "room_type": room.room_type.value} for room in user.home.rooms]
+            "rooms": []
         }
+
+        for room in user.home.rooms:
+            room_details = {
+                "id": room.id,
+                "name": room.name,
+                "room_type": room.room_type.value,
+                "items": [{
+                    "id": item.id,
+                    "name": item.item.name,
+                    "item_type": item.item.item_type.value,
+                    "room_id": item.room.id if item.room else None,
+                    "subroom_id": item.subroom.id if item.subroom else None
+                } for item in room.items],
+                "subrooms": []
+            }
+
+            for subroom in room.subrooms:
+                subroom_details = {
+                    "id": subroom.id,
+                    "name": subroom.name,
+                    "items": [{
+                        "id": item.id,
+                        "name": item.item.name,
+                        "item_type": item.item.item_type.value,
+                        "room_id": item.room.id if item.room else None,
+                        "subroom_id": item.subroom.id if item.subroom else None
+                    } for item in subroom.items]
+                }
+                room_details["subrooms"].append(subroom_details)
+
+            home_details["rooms"].append(room_details)
 
         return {"home": home_details}, 200
 

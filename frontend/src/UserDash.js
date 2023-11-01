@@ -42,9 +42,43 @@ function UserDash({userName}) {
           <h3>Your Home: {userData.home.name}</h3>
           {userData.home.rooms && userData.home.rooms.length > 0 ? (
             <ul>
+            <h3>Your rooms:</h3>
               {userData.home.rooms.map((room) => (
                 <li key={room.id}>
                   {room.name} ({room.room_type})
+                  {/* Display items of the room */}
+                  {room.items && room.items.length > 0 && (
+                    <ul>
+                    <h5>Your items in the main room:</h5>
+                      {room.items.map((item) => (
+                        <li key={item.id}>
+                          {item.name} ({item.item_type})
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {/* Display subrooms of the room */}
+                  {room.subrooms && room.subrooms.length > 0 && (
+                    <ul>
+                    <h4>Your subrooms:</h4>
+                      {room.subrooms.map((subroom) => (
+                        <li key={subroom.id}>
+                          {subroom.name}
+                          {/* Display items of the subroom */}
+                          {subroom.items && subroom.items.length > 0 && (
+                            <ul>
+                            <h4>Your items in subrooms:</h4>
+                              {subroom.items.map((item) => (
+                                <li key={item.id}>
+                                  {item.name} ({item.item_type})
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>
@@ -56,5 +90,6 @@ function UserDash({userName}) {
     </div>
   );
 }
+
 
 export default UserDash;
