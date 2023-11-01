@@ -8,7 +8,7 @@ import Nav from "react-bootstrap/Nav";
 import "./LoginStyling.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function Login({ setIsLoggedIn, setUserName }) {
+function Login({ setIsLoggedIn, setUserName, setUserId }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -62,8 +62,10 @@ function Login({ setIsLoggedIn, setUserName }) {
                   response.data.refresh_token
                 );
                 localStorage.setItem("user_name", response.data.user_name);
+                localStorage.setItem("user_id", response.data.user_id);
                 setIsLoggedIn(true);
                 setUserName(response.data.user_name);
+                setUserId(response.data.user_id)
                 navigate("/"); // Redirect to home
               } else {
                 alert("Login failed");

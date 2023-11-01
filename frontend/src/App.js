@@ -8,6 +8,7 @@ import Login from "./Login";
 import Logout from "./Logout";
 import AddHome from "./HomeForm";
 import AddRoom from "./AddRoom";
+import UserDash from "./UserDash";
 import PrivateRouteWrapper from "./PrivateRouteWrapper";
 import { useState } from "react";
 
@@ -16,6 +17,7 @@ function App() {
     Boolean(localStorage.getItem("access_token"))
   );
   const [userName, setUserName] = useState("");
+  const [userId, setUserId] = useState("");
 
   return (
     <Router>
@@ -39,6 +41,8 @@ function App() {
                 setIsLoggedIn={setIsLoggedIn}
                 userName={userName}
                 setUserName={setUserName}
+                userId={userId}
+                setUserId={setUserId}
               />
             }
           />
@@ -65,6 +69,14 @@ function App() {
             element={
               <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
                 <AddRoom />
+              </PrivateRouteWrapper>
+            }
+          />
+          <Route
+            path="dashboard"
+            element={
+              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                <UserDash />
               </PrivateRouteWrapper>
             }
           />
