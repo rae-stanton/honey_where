@@ -76,11 +76,13 @@ class Home(db.Model):
     def __repr__(self):
         return f'(id={self.id}, name={self.name})'
 
+
 room_subroom_association = db.Table(
     'room_subroom',
     db.Column('room_id', db.Integer, db.ForeignKey('room.id')),
     db.Column('subroom_id', db.Integer, db.ForeignKey('subroom.id'))
 )
+
 
 class RoomType(Enum):
     BEDROOM = "BEDROOM"
@@ -116,7 +118,8 @@ class Room(db.Model):
         }
 
         if include_items:
-            room_dict['items'] = [room_item.item.to_dict() for room_item in self.items]
+            room_dict['items'] = [room_item.item.to_dict()
+                                  for room_item in self.items]
 
         return room_dict
 
@@ -124,13 +127,27 @@ class Room(db.Model):
         return f"<Room(id={self.id}, name={self.name}, room_type={self.room_type})>"
 
 
-
 class Subroom(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
+    description = db.Column(db.String(128), nullable=True)
     rooms = db.relationship(
         'Room', secondary=room_subroom_association, back_populates='subrooms')
     items = db.relationship('RoomItems', back_populates='subroom')
+
+    def to_dict(self, include_items=False):
+        subroom_dict = {
+            'id': self.id,
+            'name': self.name,
+            'rooms': [room.to_dict(include_items=True) for room in self.rooms],
+            'items': [room_item.item.to_dict() for room_item in self.items]
+        }
+        if include_items:
+            subroom_dict['items'] = [room_item.item.to_dict()
+                                     for room_item in self.items]
+
+        return subroom_dict
+
 
 class ItemType(Enum):
     HOUSEHOLD = "HOUSEHOLD"
@@ -148,6 +165,7 @@ class ItemType(Enum):
 
 # Create a PostgreSQL enum type using SQLAlchemy
 item_type_enum = db.Enum(ItemType, name="itemtype")
+
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -167,15 +185,20 @@ class Item(db.Model):
             'room_id': room_id
         }
 
+
 class RoomItems(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=True)
-    subroom_id = db.Column(db.Integer, db.ForeignKey('subroom.id'), nullable=True)
+    subroom_id = db.Column(
+        db.Integer, db.ForeignKey('subroom.id'), nullable=True)
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
 
-    room = db.relationship('Room', back_populates='items')  # Relationship to Room
-    subroom = db.relationship('Subroom', back_populates='items')  # Relationship to Subroom
-    item = db.relationship('Item', back_populates='room_items')  # Relationship to Item
+    # Relationship to Room
+    room = db.relationship('Room', back_populates='items')
+    # Relationship to Subroom
+    subroom = db.relationship('Subroom', back_populates='items')
+    # Relationship to Item
+    item = db.relationship('Item', back_populates='room_items')
 
     def to_dict(self):
         return {

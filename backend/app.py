@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-from models import db, User, Home, Room, RoomType, Item, RoomItems, bcrypt
+from models import db, User, Home, Room, RoomType, Item, RoomItems, Subroom, bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
@@ -250,6 +250,56 @@ class RoomByIdResource(Resource):
 
 
 api.add_resource(RoomByIdResource, "/rooms/<int:room_id>")
+
+class SubroomResource(Resource):
+    def get(self):
+        subrooms = Subroom.query.all()
+        return jsonify({"subrooms": [subroom.to_dict(include_items=True) for subroom in subrooms]})
+
+    def post(self):
+        data = request.get_json()
+        subroom_name = data.get('name')
+
+        subroom = Subroom(name=subroom_name)
+        db.session.add(subroom)
+        db.session.commit()
+        return {"message": "Subroom created successfully!", "subroom": subroom.to_dict()}, 201
+
+api.add_resource(SubroomResource, "/subrooms")
+
+class SubroomByIdResource(Resource):
+    def get(self, subroom_id):
+        subroom = Subroom.query.get(subroom_id)
+        if not subroom:
+            return {"message": "Subroom not found."}, 404
+        return jsonify(subroom.to_dict(include_items=True))
+
+    def patch(self, subroom_id):
+        subroom = Subroom.query.get(subroom_id)
+        if not subroom:
+            return {"message": "Subroom not found."}, 404
+
+        data = request.get_json()
+        if 'name' in data:
+            subroom.name = data['name']
+
+        # Add more fields as required for patching
+        # (similar to the Room patch method)
+
+        db.session.commit()
+        return {"message": "Subroom updated successfully!", "subroom": subroom.to_dict()}, 200
+
+    def delete(self, subroom_id):
+        subroom = Subroom.query.get(subroom_id)
+        if not subroom:
+            return {"message": "Subroom not found."}, 404
+
+        db.session.delete(subroom)
+        db.session.commit()
+        return {"message": "Subroom deleted successfully!"}, 200
+
+api.add_resource(SubroomByIdResource, "/subrooms/<int:subroom_id>")
+
 
 class ItemResource(Resource):
     def get(self):
