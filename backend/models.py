@@ -73,6 +73,14 @@ class Home(db.Model):
             "room_ids": [room.to_dict() for room in self.rooms]
         }
 
+    @validates('name')
+    def validate_name(self, key, name):
+        if not isinstance(name, str):
+            raise AssertionError('Name must be a string')
+        if len(name) < 2:
+            raise AssertionError('Name must be at least two characters long')
+        return name
+
     def __repr__(self):
         return f'(id={self.id}, name={self.name})'
 
