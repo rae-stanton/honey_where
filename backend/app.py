@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-from models import db, User, Home, Room, RoomType, Item, RoomItems, Subroom, room_subroom_association, bcrypt
+from models import db, User, Home, Room, RoomType, Item, ItemType, RoomItems, Subroom, room_subroom_association, bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
@@ -536,6 +536,43 @@ class AssignRoomResource(Resource):
 
 api.add_resource(AssignRoomResource, "/assign_room")
 
+class AddItemResource(Resource):
+    @jwt_required()
+    def post(self):
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        if not user:
+            return {"message": "User not found."}, 404
+
+        data = request.get_json()
+        item_name = data.get("name")
+        item_type = data.get("type")
+        room_id = data.get("roomId")
+
+        # Validate item type enum
+        if not item_type:
+            return {"message": "item_type is required"}, 400
+        if item_type not in ItemType._member_names_:
+            return {"message": f"Invalid item_type. Allowed values are {list(ItemType._member_names_)}"}, 400
+
+        # Check if room exists
+        room = Room.query.get(room_id)
+        if not room:
+            return {"message": "Room not found."}, 404
+
+        # Create a new item
+        item = Item(name=item_name, item_type=ItemType[item_type])
+        db.session.add(item)
+        db.session.flush()  # To get the item's ID after adding it
+
+        # Associate the item with the room
+        room_item = RoomItems(room_id=room_id, item_id=item.id)
+        db.session.add(room_item)
+
+        db.session.commit()
+
+        return {"message": f"Item '{item_name}' added successfully to room {room.name}!"}, 201
+api.add_resource(AddItemResource, "/add_item")
 
 class UserHomeDetailsResource(Resource):
     @jwt_required()
