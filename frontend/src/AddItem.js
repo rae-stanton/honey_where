@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import DismissibleSuccessAlert from "./SuccessAlert";
@@ -9,7 +9,25 @@ function AddItem() {
   const token = localStorage.getItem("access_token");
   const [showAlert, setShowAlert] = useState(false);
   const [itemAdded, setItemAdded] = useState(false);
+  const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:5000/rooms", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setRooms(response.data.rooms || []);
+      } catch (error) {
+        console.error("Error fetching rooms:", error);
+      }
+    };
+
+    fetchRooms();
+  }, [token]);
 
   const formik = useFormik({
     initialValues: {
@@ -38,7 +56,11 @@ function AddItem() {
       try {
         const response = await axios.post(
           "http://127.0.0.1:5000/add_item",
-          { name: values.itemName, type: values.itemType, roomId: values.roomId },
+          {
+            name: values.itemName,
+            type: values.itemType,
+            roomId: values.roomId,
+          },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -76,7 +98,9 @@ function AddItem() {
 
           {itemAdded ? (
             <div>
-              <p>Your item was added successfully! Would you like to add another?</p>
+              <p>
+                Your item was added successfully! Would you like to add another?
+              </p>
 
               <div
                 style={{
@@ -131,6 +155,17 @@ function AddItem() {
                   {/* Here you would populate the options based on the ItemType enum */}
                   <option value="" label="Select item type" />
                   <option value="HOUSEHOLD" label="Household" />
+                  <option value="DECORATION" label="Decoration" />
+                  <option value="TOOL" label="Tool" />
+                  <option value="UTENSIL" label="Utensil" />
+                  <option value="APPLIANCE" label="Appliance" />
+                  <option value="PHOTO" label="Photo" />
+                  <option value="PERSONAL" label="Personal" />
+                  <option value="ELECTRONIC" label="Electronic" />
+                  <option value="CLOTHING" label="Clothing" />
+                  <option value="PET" label="Pet" />
+                  <option value="MISCELLANEOUS" label="Miscellaneous" />
+
                   {/* ... Add other types */}
                 </select>
                 {formik.touched.itemType && formik.errors.itemType ? (
@@ -152,14 +187,13 @@ function AddItem() {
                   value={formik.values.roomId}
                   className="form-control"
                 >
-                  {/* This select will have options based on available rooms */}
                   <option value="" label="Select a room" />
-                  {/* ... Populate with rooms */}
+                  {rooms.map((room) => (
+                    <option key={room.id} value={room.id} label={room.name} />
+                  ))}
                 </select>
                 {formik.touched.roomId && formik.errors.roomId ? (
-                  <div className="text-danger mt-2">
-                    {formik.errors.roomId}
-                  </div>
+                  <div className="text-danger mt-2">{formik.errors.roomId}</div>
                 ) : null}
               </div>
 

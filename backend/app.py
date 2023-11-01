@@ -184,8 +184,14 @@ api.add_resource(HomeById, "/homes/<int:home_id>")
 
 
 class RoomResource(Resource):
+    @jwt_required()
     def get(self):
-        rooms = Room.query.all()
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        if not user or not user.home:
+            return {"message": "User not found or user does not have a home."}, 404
+
+        rooms = Room.query.filter_by(home_id=user.home.id).all()
         return jsonify({"rooms": [room.to_dict(include_items=True) for room in rooms]})
 
     def post(self):
