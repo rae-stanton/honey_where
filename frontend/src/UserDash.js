@@ -10,8 +10,8 @@ function UserDash({userName}) {
       // Fetch user id from local storage.
       const userId = localStorage.getItem("user_id");
 
-      if (!userId) return; // If no user_id in local storage, don't make the request
-
+      if (!userId) return;
+      // Note: the user's id is set on login, so this should just redirect if nil/Null
       try {
         const response = await axios.get(
           `http://127.0.0.1:5000/user_home_details`,
