@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-from models import db, User, Home, Room, RoomType, bcrypt
+from models import db, User, Home, Room, RoomType, Item, RoomItems, bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
@@ -250,6 +250,38 @@ class RoomByIdResource(Resource):
 
 api.add_resource(RoomByIdResource, "/rooms/<int:room_id>")
 
+class ItemResource(Resource):
+    def get(self):
+        items = Item.query.all()
+        return jsonify({"items": [item.to_dict() for item in items]})
+
+    def post(self):
+        data = request.get_json()
+
+        item_name = data.get('name')
+        description = data.get('description')
+        item_type = data.get('item_type')
+
+        room_id = data.get('room_id')
+        subroom_id = data.get('subroom_id')
+
+        if room_id is None and subroom_id is None:
+            return {"message": "Either room_id or subroom_id must be provided"}, 400
+        if room_id and subroom_id:
+            return {"message": "You cannot assign an item to both a room and subroom at the same time."}, 400
+
+        item = Item(name=item_name, description=description, item_type=item_type)
+        db.session.add(item)
+        db.session.flush()  # Flush to get the item ID
+
+        room_item = RoomItems(room_id=room_id, subroom_id=subroom_id, item_id=item.id)
+        db.session.add(room_item)
+
+        db.session.commit()
+        return {"message": "Item created successfully!", "item": item.to_dict()}, 201
+
+
+api.add_resource(ItemResource, "/items")
 
 class TokenRefreshResource(Resource):
     @jwt_required(refresh=True)

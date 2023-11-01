@@ -104,6 +104,7 @@ class Room(db.Model):
     home = db.relationship('Home', back_populates='rooms')
     subrooms = db.relationship(
         'Subroom', secondary=room_subroom_association, back_populates='rooms')
+    items = db.relationship('RoomItems', back_populates='room')
 
     def to_dict(self):
         return {
@@ -111,7 +112,8 @@ class Room(db.Model):
             'name': self.name,
             'description': self.description,
             'room_type': self.room_type.value if self.room_type else None,
-            'home_id': self.home_id
+            'home_id': self.home_id,
+            'items': [room_item.item.to_dict() for room_item in self.items]
         }
 
     def __repr__(self):
@@ -123,6 +125,7 @@ class Subroom(db.Model):
     name = db.Column(db.String(128))
     rooms = db.relationship(
         'Room', secondary=room_subroom_association, back_populates='subrooms')
+    items = db.relationship('RoomItems', back_populates='subroom')
 
 class ItemType(Enum):
     HOUSEHOLD = "HOUSEHOLD"
@@ -146,6 +149,42 @@ class Item(db.Model):
     name = db.Column(db.String(128))
     description = db.Column(db.String(128))
     item_type = db.Column(item_type_enum, nullable=False)
-    # subroom_id = db.Column(db.Integer, db.ForeignKey("subroom.id"))
+    room_items = db.relationship('RoomItems', back_populates='item')
 
-    # subroom = db.relationship("Subroom", back_populates="items")
+    def to_dict(self):
+        location = RoomItems.query.filter_by(item_id=self.id).first()
+        room_id = location.room_id if location else None
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'item_type': self.item_type.value if self.item_type else None,
+            'room_id': room_id
+        }
+
+class RoomItems(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=True)
+    subroom_id = db.Column(db.Integer, db.ForeignKey('subroom.id'), nullable=True)
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
+
+    room = db.relationship('Room', back_populates='items')  # Relationship to Room
+    subroom = db.relationship('Subroom', back_populates='items')  # Relationship to Subroom
+    item = db.relationship('Item', back_populates='room_items')  # Relationship to Item
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'room_id': self.room_id,
+            'subroom_id': self.subroom_id,
+            'item_id': self.item_id,
+            'item_name': self.item.name if self.item else None,
+            'item_description': self.item.description if self.item else None,
+            'item_type': self.item.item_type.value if self.item and self.item.item_type else None
+        }
+
+    __table_args__ = (
+        db.CheckConstraint(
+            '(room_id IS NOT NULL AND subroom_id IS NULL) OR (room_id IS NULL AND subroom_id IS NOT NULL)',
+            name='check_single_location_for_item'),
+    )
