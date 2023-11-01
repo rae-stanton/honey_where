@@ -12,7 +12,7 @@ function DismissibleSuccessAlert() {
     <Alert variant="success" onClose={() => setShow(false)} dismissible>
       <Alert.Heading>Added successfully!</Alert.Heading>
       <p>
-        To view your home, <span style={{color: 'blue', cursor: 'pointer'}} onClick={() => navigate("/")}>click here</span>.
+        To view your home, <span style={{color: 'blue', cursor: 'pointer'}} onClick={() => navigate("/dashboard")}>click here</span>.
       </p>
     </Alert>
   );

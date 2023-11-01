@@ -108,7 +108,7 @@ class Room(db.Model):
         'Subroom', secondary=room_subroom_association, back_populates='rooms')
     items = db.relationship('RoomItems', back_populates='room')
 
-    def to_dict(self, include_items=False):
+    def to_dict(self, include_items=False, include_subrooms=False):
         room_dict = {
             'id': self.id,
             'name': self.name,
@@ -120,6 +120,9 @@ class Room(db.Model):
         if include_items:
             room_dict['items'] = [room_item.item.to_dict()
                                   for room_item in self.items]
+        if include_subrooms:
+            room_dict['subrooms'] = [subroom.to_dict(
+                include_items=False) for subroom in self.subrooms]
 
         return room_dict
 
@@ -135,7 +138,7 @@ class Subroom(db.Model):
         'Room', secondary=room_subroom_association, back_populates='subrooms')
     items = db.relationship('RoomItems', back_populates='subroom')
 
-    def to_dict(self, include_items=False):
+    def to_dict(self, include_items=False, include_rooms=False):
         subroom_dict = {
             'id': self.id,
             'name': self.name,
@@ -145,7 +148,9 @@ class Subroom(db.Model):
         if include_items:
             subroom_dict['items'] = [room_item.item.to_dict()
                                      for room_item in self.items]
-
+        if include_rooms:
+            subroom_dict['rooms'] = [room.to_dict(
+                include_items=False) for room in self.rooms]
         return subroom_dict
 
 

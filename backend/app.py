@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Resource, Api
 from flask_cors import CORS
-from models import db, User, Home, Room, RoomType, Item, RoomItems, Subroom, bcrypt
+from models import db, User, Home, Room, RoomType, Item, RoomItems, Subroom, room_subroom_association, bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jti, create_refresh_token
 from datetime import timedelta
 
@@ -211,8 +211,7 @@ class RoomByIdResource(Resource):
         room = Room.query.get(room_id)
         if not room:
             return {"message": "Room not found."}, 404
-        return jsonify(room.to_dict(include_items=True))
-
+        return jsonify(room.to_dict(include_items=True, include_subrooms=True))
 
     def patch(self, room_id):
         room = Room.query.get(room_id)
@@ -251,6 +250,7 @@ class RoomByIdResource(Resource):
 
 api.add_resource(RoomByIdResource, "/rooms/<int:room_id>")
 
+
 class SubroomResource(Resource):
     def get(self):
         subrooms = Subroom.query.all()
@@ -259,20 +259,29 @@ class SubroomResource(Resource):
     def post(self):
         data = request.get_json()
         subroom_name = data.get('name')
+        room_id = data.get('room_id')  # Get room_id from the data
+
+        # Check if the room exists
+        room = Room.query.get(room_id)
+        if not room:
+            return {"message": "Room not found."}, 404
 
         subroom = Subroom(name=subroom_name)
+        room.subrooms.append(subroom)  # Associate the subroom with the room
+
         db.session.add(subroom)
         db.session.commit()
         return {"message": "Subroom created successfully!", "subroom": subroom.to_dict()}, 201
 
 api.add_resource(SubroomResource, "/subrooms")
 
+
 class SubroomByIdResource(Resource):
     def get(self, subroom_id):
         subroom = Subroom.query.get(subroom_id)
         if not subroom:
             return {"message": "Subroom not found."}, 404
-        return jsonify(subroom.to_dict(include_items=True))
+        return jsonify(subroom.to_dict(include_items=True, include_rooms=True))
 
     def patch(self, subroom_id):
         subroom = Subroom.query.get(subroom_id)
@@ -283,6 +292,14 @@ class SubroomByIdResource(Resource):
         if 'name' in data:
             subroom.name = data['name']
 
+        if 'description' in data:
+            subroom.description = data['description']
+        if 'room_id' in data:
+            # Check if the provided home_id exists before assigning
+            room_exists = Room.query.get(data['room_id'])
+            if not room_exists:
+                return {"message": "Room with provided room_id not found."}, 404
+            subroom.room_id = data['room_id']
         # Add more fields as required for patching
         # (similar to the Room patch method)
 
@@ -297,6 +314,7 @@ class SubroomByIdResource(Resource):
         db.session.delete(subroom)
         db.session.commit()
         return {"message": "Subroom deleted successfully!"}, 200
+
 
 api.add_resource(SubroomByIdResource, "/subrooms/<int:subroom_id>")
 
@@ -321,11 +339,13 @@ class ItemResource(Resource):
         if room_id and subroom_id:
             return {"message": "You cannot assign an item to both a room and subroom at the same time."}, 400
 
-        item = Item(name=item_name, description=description, item_type=item_type)
+        item = Item(name=item_name, description=description,
+                    item_type=item_type)
         db.session.add(item)
         db.session.flush()  # Flush to get the item ID
 
-        room_item = RoomItems(room_id=room_id, subroom_id=subroom_id, item_id=item.id)
+        room_item = RoomItems(
+            room_id=room_id, subroom_id=subroom_id, item_id=item.id)
         db.session.add(room_item)
 
         db.session.commit()
@@ -333,6 +353,7 @@ class ItemResource(Resource):
 
 
 api.add_resource(ItemResource, "/items")
+
 
 class RoomItemsResource(Resource):
     def get(self, room_id=None):
@@ -349,7 +370,8 @@ class RoomItemsResource(Resource):
         item_id = data.get('item_id')
 
         # Check if the room-item association already exists
-        existing = RoomItems.query.filter_by(room_id=room_id, item_id=item_id).first()
+        existing = RoomItems.query.filter_by(
+            room_id=room_id, item_id=item_id).first()
         if existing:
             return {"message": "The item is already associated with the room."}, 400
 
@@ -358,8 +380,28 @@ class RoomItemsResource(Resource):
         db.session.commit()
         return {"message": "Item added to room successfully!", "room_item": room_item.to_dict()}, 201
 
+class RoomItemsByIdResource(Resource):
+    def get(self, room_id=None, item_id=None):
+        if room_id and item_id:
+            room_item = RoomItems.query.filter_by(room_id=room_id, item_id=item_id).first()
+            if not room_item:
+                return {"message": "Room-Item association not found."}, 404
+            return room_item.to_dict(), 200
+        # If only room_id is provided, get all items for that room
+        elif room_id:
+            room_items = RoomItems.query.filter_by(room_id=room_id).all()
+            return {"items": [room_item.to_dict() for room_item in room_items]}, 200
+
+        # If no IDs are provided, fetch all room-items (optional based on your needs)
+        else:
+            room_items = RoomItems.query.all()
+            print(room_items)
+            return {"room_items": [room_item.to_dict() for room_item in room_items]}, 200
+
+
     def delete(self, room_id, item_id):
-        room_item = RoomItems.query.filter_by(room_id=room_id, item_id=item_id).first()
+        room_item = RoomItems.query.filter_by(
+            room_id=room_id, item_id=item_id).first()
         if not room_item:
             return {"message": "Room-Item association not found."}, 404
 
@@ -367,8 +409,9 @@ class RoomItemsResource(Resource):
         db.session.commit()
         return {"message": "Item removed from room successfully!"}, 200
 
-api.add_resource(RoomItemsResource, "/room-items", "/room-items/<int:room_id>")
 
+api.add_resource(RoomItemsResource, "/room-items")
+api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>")
 
 class TokenRefreshResource(Resource):
     @jwt_required(refresh=True)
