@@ -96,36 +96,40 @@ function UserDash({ userName }) {
   if (!userData) return <p>Loading user details...</p>;
 
   return (
-    <div className="dashboard">
+    <Card className="dashboard-card">
+      <Card.Body>
       <h2>Welcome back, {userName}</h2>
 
-      <div className="filter-section">
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <br />
-        <Dropdown onSelect={(selectedKey) => setSelectedItemType(selectedKey)}>
-          <Dropdown.Toggle
-            variant="success"
-            id="dropdown-basic"
-            style={{ padding: "10px" }}
-          >
-            Filter by Type
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu>
-            <Dropdown.Item eventKey="">None</Dropdown.Item>
-            {Object.values(ItemType).map((type) => (
-              <Dropdown.Item eventKey={type} key={type}>
-                {type}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
+    <Container className="my-4">
+      <Row className="justify-content-center">
+        <Col md={6} className="d-flex flex-column align-items-center">
+          <input
+            type="text"
+            placeholder="Where is my..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="form-control mb-3" // Added Bootstrap classes for styling
+          />
+          <Dropdown onSelect={(selectedKey) => setSelectedItemType(selectedKey)}>
+            <Dropdown.Toggle
+              variant="success"
+              id="dropdown-basic"
+              className="w-100" // This will make the dropdown full width of its parent column
+            >
+              Filter by Type
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="w-100"> {/* Same here for the dropdown menu */}
+              <Dropdown.Item eventKey="">None</Dropdown.Item>
+              {Object.values(ItemType).map((type) => (
+                <Dropdown.Item eventKey={type} key={type}>
+                  {type}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </Col>
+      </Row>
+    </Container>
 
       {userData.home && (
         <div className="home-details">
@@ -186,7 +190,8 @@ function UserDash({ userName }) {
           </Container>
         </div>
       )}
-    </div>
+      </Card.Body>
+    </Card>
   );
 }
 
