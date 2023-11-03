@@ -11,7 +11,7 @@ import AddRoom from "./AddRoom";
 import AddItem from "./AddItem";
 import UserDash from "./UserDash";
 import PrivateRouteWrapper from "./PrivateRouteWrapper";
-import honeyImage from "./images/honeydrip.png";
+import honeyImage from "../src/images/honeydrip.png"
 import { useState } from "react";
 
 function App() {
@@ -22,12 +22,11 @@ function App() {
   const [userId, setUserId] = useState("");
 
   return (
-      <div
-      className="app-background"
-      style={{ backgroundImage: `url(${honeyImage})` }}
-    >
     <Router>
-      <div>
+      <div
+        className="app-background"
+        style={{ backgroundImage: `url(${honeyImage})` }}
+      >
         {/* NavBar import */}
         <AppNavbar
           isLoggedIn={isLoggedIn}
@@ -97,7 +96,6 @@ function App() {
         </Routes>
       </div>
     </Router>
-    </div>
   );
 }
 

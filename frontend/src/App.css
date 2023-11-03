@@ -5,3 +5,11 @@ h1, h2, h3, h4, h5 {
 body {
   background-color: #e7e2d1 !important;
 }
+
+/* App.css */
+.app-background {
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
