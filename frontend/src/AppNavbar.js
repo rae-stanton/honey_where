@@ -23,6 +23,9 @@ function AppNavbar({ isLoggedIn }) {
               <Nav.Link as={Link} to="/add-room" className="navlink">
                 Add Rooms
               </Nav.Link>
+              <Nav.Link as={Link} to="/add-item" className="navlink">
+                Add Items
+              </Nav.Link>
               <Nav.Link as={Link} to="/logout" className="navlink">
                 Logout
               </Nav.Link>
