@@ -1,3 +1,30 @@
-.item-badge {
+.room-header {
   background-color: #f5891d;
+  color: white;
+}
+
+.room-type {
+  color: #f5891d;
+}
+
+.subroom-header {
+  background-color: #ffbc13;
+  color: white;
+}
+
+.btn-success {
+  background-color: #ffbc13 !important;
+}
+
+.item-badge {
+  align-content: end;
+}
+h1, h2, h3, h4, h5 {
+  text-align: center;
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

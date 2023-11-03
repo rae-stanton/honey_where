@@ -5,6 +5,7 @@ import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import Badge from "react-bootstrap/Badge";
 import "./UserDash.css";
+import { Container, Row, Col } from "react-bootstrap";
 
 function UserDash({ userName }) {
   const token = localStorage.getItem("access_token");
@@ -63,7 +64,7 @@ function UserDash({ userName }) {
   };
 
   const ColoredPill = ({ label }) => {
-    const dotColor = itemTypeToDotColorMap[label] || "#ceb4a7";
+    const dotColor = itemTypeToDotColorMap[label] || "#ffffff";
     return (
       <Badge
         pill
@@ -87,7 +88,7 @@ function UserDash({ userName }) {
   };
   const TypePill = ({ label }) => {
     return (
-      <Badge pill bg="light" className="ms-2">
+      <Badge pill bg="light" className="room-type">
         {label}
       </Badge>
     );
@@ -129,48 +130,60 @@ function UserDash({ userName }) {
       {userData.home && (
         <div className="home-details">
           <h3>Your Home: {userData.home.name}</h3>
-          <div>
-            {userData.home.rooms && userData.home.rooms.length > 0 ? (
-              userData.home.rooms.map((room) => (
-                <Card key={room.id} className="mb-3">
-                  <Card.Header as="h5">
-                    {room.name} <TypePill label={room.room_type} />
-                  </Card.Header>
-                  <ListGroup variant="flush">
-                    {room.items &&
-                      room.items
-                        .filter(filterItemsByName)
-                        .filter(filterItemsByType)
-                        .map((item) => (
-                          <ListGroup.Item key={item.id}>
-                            {item.name} <ColoredPill label={item.item_type} />
-                          </ListGroup.Item>
+          <Container>
+            <Row xs={1} md={3} className="g-4">
+              {" "}
+              {/* xs for extra small screens, md for medium-sized screens, with gap (gutter) of 4 */}
+              {userData.home.rooms && userData.home.rooms.length > 0 ? (
+                userData.home.rooms.map((room) => (
+                  <Col key={room.id}>
+                    <Card className="mb-3">
+                      <Card.Header as="h5" className="room-header">
+                        {room.name} <TypePill label={room.room_type} />
+                      </Card.Header>
+                      <ListGroup variant="flush">
+                        {room.items &&
+                          room.items
+                            .filter(filterItemsByName)
+                            .filter(filterItemsByType)
+                            .map((item) => (
+                              <ListGroup.Item key={item.id}>
+                                {item.name}{" "}
+                                <ColoredPill label={item.item_type} />
+                              </ListGroup.Item>
+                            ))}
+                      </ListGroup>
+                      {room.subrooms &&
+                        room.subrooms.map((subroom) => (
+                          <Card
+                            key={subroom.id}
+                            className="mb-2 mt-2 subroom-card"
+                          >
+                            <Card.Header as="h6" className="subroom-header">
+                              {subroom.name}
+                            </Card.Header>
+                            <ListGroup variant="flush">
+                              {subroom.items &&
+                                subroom.items
+                                  .filter(filterItemsByName)
+                                  .filter(filterItemsByType)
+                                  .map((item) => (
+                                    <ListGroup.Item key={item.id}>
+                                      {item.name}{" "}
+                                      <ColoredPill label={item.item_type} />
+                                    </ListGroup.Item>
+                                  ))}
+                            </ListGroup>
+                          </Card>
                         ))}
-                  </ListGroup>
-                  {room.subrooms &&
-                    room.subrooms.map((subroom) => (
-                      <Card key={subroom.id} className="mb-2 mt-2">
-                        <Card.Header as="h6">{subroom.name}</Card.Header>
-                        <ListGroup variant="flush">
-                          {subroom.items &&
-                            subroom.items
-                              .filter(filterItemsByName)
-                              .filter(filterItemsByType)
-                              .map((item) => (
-                                <ListGroup.Item key={item.id}>
-                                  {item.name}{" "}
-                                  <ColoredPill label={item.item_type} />
-                                </ListGroup.Item>
-                              ))}
-                        </ListGroup>
-                      </Card>
-                    ))}
-                </Card>
-              ))
-            ) : (
-              <p>You have no rooms added yet.</p>
-            )}
-          </div>
+                    </Card>
+                  </Col>
+                ))
+              ) : (
+                <p>You have no rooms added yet.</p>
+              )}
+            </Row>
+          </Container>
         </div>
       )}
     </div>
