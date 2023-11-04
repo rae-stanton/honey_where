@@ -133,7 +133,7 @@ function UserDash({ userName }) {
 
       {userData.home && (
         <div className="home-details">
-          <h3>Your Home: {userData.home.name}</h3>
+          <h3>Your Hive: {userData.home.name}</h3>
           <Container>
             <Row xs={1} md={3} className="g-4">
               {" "}

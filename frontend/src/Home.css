@@ -1,0 +1,27 @@
+.home-card {
+  position: relative;
+  /* Other styles for your card */
+}
+
+.custom-image-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  /* Adjust the size if needed, and add padding if you want some space from the edges */
+}
+
+.bottom-right-image {
+  max-width: 100px; /* Example size - adjust as needed */
+  max-height: 100px; /* Example size - adjust as needed */
+}
+
+/* In your Home.css file */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 2s ease-in forwards;
+}
