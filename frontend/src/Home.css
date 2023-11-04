@@ -5,14 +5,14 @@
 
 .custom-image-container {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 5px;
+  right: 5px;
   /* Adjust the size if needed, and add padding if you want some space from the edges */
 }
 
 .bottom-right-image {
-  max-width: 100px; /* Example size - adjust as needed */
-  max-height: 100px; /* Example size - adjust as needed */
+  max-width: 200px; /* Example size - adjust as needed */
+  max-height: 200px; /* Example size - adjust as needed */
 }
 
 /* In your Home.css file */
@@ -25,3 +25,11 @@
 .fade-in {
   animation: fadeIn 2s ease-in forwards;
 }
+
+/* Custom focus color for form inputs using plain CSS */
+.form-control:focus {
+  border-color: #FFA500; /* Orange border */
+  /* This creates a box-shadow with an rgba color. You may need to adjust the RGB values to get the orange shade you want. */
+  box-shadow: 0 0 0 0.2rem rgba(255, 165, 0, 0.5);
+}
+

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import logo from "../src/images/logo.png"
+import logo from "../src/images/navgraphic.png";
 import "./AppNavbar.css";
 
 function AppNavbar({ isLoggedIn }) {
@@ -19,6 +19,7 @@ function AppNavbar({ isLoggedIn }) {
             className="d-inline-block align-top"
             alt="Logo"
           />
+          <span className="navbar-logo-text">HONEYWHERE</span>
         </Navbar.Brand>
         <Nav className="flex-grow-1 justify-content-end align-items-center">
           <Nav.Link as={Link} to="/" className="navlink">
@@ -27,7 +28,7 @@ function AppNavbar({ isLoggedIn }) {
           {isLoggedIn ? (
             <>
               <Nav.Link as={Link} to="/add-home" className="navlink">
-                Add Home
+                Add Hive
               </Nav.Link>
               <Nav.Link as={Link} to="/add-room" className="navlink">
                 Add Rooms
