@@ -17,10 +17,11 @@ function Home({ userName }) {
             More text on what this is that fades in
           </Card.Text>
           {/* Other content */}
-        </Card.Body>
-        <div className="custom-image-container">
+                  <div className="custom-image-container">
           <img src={logo} alt="Custom" className="bottom-right-image" />
         </div>
+        </Card.Body>
+
       </Card>
     </Container>
   );
