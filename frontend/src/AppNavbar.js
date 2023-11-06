@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
+import logo from "../src/images/navgraphic.png";
 import "./AppNavbar.css";
 
 function AppNavbar({ isLoggedIn }) {
@@ -10,7 +11,16 @@ function AppNavbar({ isLoggedIn }) {
   return (
     <Navbar className="main-navbar" expand="lg">
       <Container className="d-flex justify-content-between">
-        {/* You can uncomment and add back the logo or any other navbar components here if needed */}
+        <Navbar.Brand as={Link} to="/">
+          <img
+            src={logo}
+            width="60"
+            height="60"
+            className="d-inline-block align-top"
+            alt="Logo"
+          />
+          <span className="navbar-logo-text">HONEYWHERE</span>
+        </Navbar.Brand>
         <Nav className="flex-grow-1 justify-content-end align-items-center">
           <Nav.Link as={Link} to="/" className="navlink">
             Home
@@ -18,10 +28,16 @@ function AppNavbar({ isLoggedIn }) {
           {isLoggedIn ? (
             <>
               <Nav.Link as={Link} to="/add-home" className="navlink">
-                Add Home
+                Add Hive
               </Nav.Link>
               <Nav.Link as={Link} to="/add-room" className="navlink">
                 Add Rooms
+              </Nav.Link>
+              <Nav.Link as={Link} to="/add-item" className="navlink">
+                Add Items
+              </Nav.Link>
+              <Nav.Link as={Link} to="/dashboard" className="navlink">
+                Dashboard
               </Nav.Link>
               <Nav.Link as={Link} to="/logout" className="navlink">
                 Logout

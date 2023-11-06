@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import DismissibleSuccessAlert from './SuccessAlert';
 import { Card, Button } from "react-bootstrap";
+import "./Home.css"
 
 function AddHome() {
     const token = localStorage.getItem('access_token');
@@ -45,15 +46,15 @@ function AddHome() {
         <div className="d-flex justify-content-center align-items-center vh-85">
             <Card className="mt-5 w-80 forms">
                 <Card.Body>
-                    <h4 className="header-text text-center text-primary mb-4">Add Your Home</h4>
+                    <h4 className="header-text text-center text-primary mb-4">Add Your Hive</h4>
                     <form onSubmit={formik.handleSubmit}>
                         <div className="mb-3">
-                            <label htmlFor="homeName" className="form-label">Home Name</label>
+                            <label htmlFor="homeName" className="form-label">Hive Name</label>
                             <input
                                 id="homeName"
                                 name="homeName"
                                 type="text"
-                                placeholder="Enter Home Name"
+                                placeholder="Enter Hive Name"
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                                 value={formik.values.homeName}

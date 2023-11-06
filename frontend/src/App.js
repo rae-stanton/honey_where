@@ -10,7 +10,9 @@ import AddHome from "./HomeForm";
 import AddRoom from "./AddRoom";
 import AddItem from "./AddItem";
 import UserDash from "./UserDash";
+import UserEditForm from "./UserEditForm";
 import PrivateRouteWrapper from "./PrivateRouteWrapper";
+import honeyImage from "../src/images/honeydrip.png";
 import { useState } from "react";
 
 function App() {
@@ -22,7 +24,10 @@ function App() {
 
   return (
     <Router>
-      <div>
+      <div
+        className="app-background"
+        style={{ backgroundImage: `url(${honeyImage})` }}
+      >
         {/* NavBar import */}
         <AppNavbar
           isLoggedIn={isLoggedIn}
@@ -86,6 +91,14 @@ function App() {
             element={
               <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
                 <UserDash userName={userName} />
+              </PrivateRouteWrapper>
+            }
+          />
+          <Route
+            path="edit-user"
+            element={
+              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                <UserEditForm userName={userName} />
               </PrivateRouteWrapper>
             }
           />
