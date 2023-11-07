@@ -105,5 +105,4 @@ export const DragDropProvider = ({ children }) => {
   );
 };
 
-// Make sure to export the provider component
 export default DragDropProvider;

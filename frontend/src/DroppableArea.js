@@ -10,7 +10,7 @@ export const DroppableArea = ({ room, children }) => {
     accept: ItemTypes.ITEM,
     drop: (item, monitor) => {
       if (monitor.isOver()) {
-        onDrop(item, room); // room should contain at least an id property
+        onDrop(item, room);
       }
     },
     collect: (monitor) => ({
@@ -20,8 +20,6 @@ export const DroppableArea = ({ room, children }) => {
 
   return (
     <div ref={dropRef} className="droppable-area">
-      {/* You can put your room content here */}
-      {/* children could be a list of DraggableItem components */}
       {children}
     </div>
   );
