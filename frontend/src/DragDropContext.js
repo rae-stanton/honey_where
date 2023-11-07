@@ -9,12 +9,27 @@ export const DragDropProvider = ({ children }) => {
   const [draggedItem, setDraggedItem] = useState(null);
   const [draggedSubroom, setDraggedSubroom] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
+  const [newRoom, setNewRoom] = useState([]);
 
   const startDragItem = (item) => setDraggedItem(item);
 
   const startDragSubroom = (subroom) => setDraggedSubroom(subroom);
 
   const defineDropTarget = (target) => setDropTarget(target);
+
+  const updateRoomState = (item, newRoomId) => {
+    setNewRoom((prevRoomState) => {
+      const updatedRooms = prevRoomState.map((room) => {
+        if (room.id === item.room_id) {
+          return { ...room, items: room.items.filter((i) => i.id !== item.id) };
+        } else if (room.id === newRoomId) {
+          return { ...room, items: [...room.items, { ...item, room_id: newRoomId }] };
+        }
+        return room;
+      });
+      return updatedRooms;
+    });
+  };
 
   const updateItemLocation = async (
     item,
@@ -43,7 +58,9 @@ export const DragDropProvider = ({ children }) => {
 
       console.log(response.data.message);
       if (response.status === 200) {
+        updateRoomState(item, newRoomId)
         onSuccess && onSuccess(item, newRoomId);
+
       }
 
     } catch (error) {
@@ -77,6 +94,7 @@ export const DragDropProvider = ({ children }) => {
     startDragItem,
     startDragSubroom,
     defineDropTarget,
+    newRoom,
     onDrop,
   };
 

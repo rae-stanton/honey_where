@@ -15,7 +15,7 @@ function UserDash({ userName }) {
   const [userData, setUserData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItemType, setSelectedItemType] = useState("");
-  const { onDrop } = useDragDropContext();
+  const { onDrop, newRoom } = useDragDropContext();
 
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function UserDash({ userName }) {
     };
 
     fetchUserDetails();
-  }, []);
+  }, [newRoom]);
 
   const filterItemsByName = (item) => {
     return item.name.toLowerCase().includes(searchTerm.toLowerCase());
