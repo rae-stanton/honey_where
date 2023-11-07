@@ -158,7 +158,11 @@ function UserDash({ userName }) {
                                 .filter(filterItemsByName)
                                 .filter(filterItemsByType)
                                 .map((item) => (
-                                  <DraggableItem key={item.id} item={item} currentRoomId={room.id}>
+                                  <DraggableItem
+                                    key={item.id}
+                                    item={item}
+                                    currentRoomId={room.id}
+                                  >
                                     <ListGroup.Item>
                                       {item.name}{" "}
                                       <ColoredPill label={item.item_type} />

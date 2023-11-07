@@ -65,7 +65,7 @@ export const DragDropProvider = ({ children }) => {
     setDropTarget(null);
 
     // Update the item location using the target room's ID
-    updateItemLocation(item, targetRoom.id, null, null);
+    updateItemLocation({ ...item, room_id: item.room_id }, targetRoom.id, null, null);
   };
 
   // The context value that will be supplied to any descendants of this provider
