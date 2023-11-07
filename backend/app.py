@@ -417,9 +417,39 @@ class RoomItemsByIdResource(Resource):
         db.session.commit()
         return {"message": "Item removed from room successfully!"}, 200
 
+    @jwt_required()
+    def patch(self, room_id, item_id):
+        data = request.get_json()
+        new_room_id = data.get('new_room_id', None)
+        new_subroom_id = data.get('new_subroom_id', None)
+        new_order = data.get('new_order', None)
 
-api.add_resource(RoomItemsResource, "/room-items")
-api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>")
+        room_item = RoomItems.query.filter_by(room_id=room_id, item_id=item_id).first()
+        if not room_item:
+            return {"message": "Room-Item association not found."}, 404
+
+        # Update room or subroom association if provided
+        if new_room_id is not None:
+            room_item.room_id = new_room_id
+            room_item.subroom_id = None  # Assuming an item can't be in a room and subroom at the same time
+        elif new_subroom_id is not None:
+            room_item.subroom_id = new_subroom_id
+            # Optionally, update room_id if necessary, depending on your data model
+
+        # Update order if provided
+        if new_order is not None:
+            room_item.order = new_order
+
+        db.session.commit()
+        return {"message": "Item updated successfully!"}, 200
+
+
+# api.add_resource(RoomItemsResource, "/room-items")
+# api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>")
+# api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>/<int:item_id>")
+api.add_resource(RoomItemsResource, "/room-items", endpoint='room_items')
+api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>", endpoint='room_items_by_id')
+api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>/<int:item_id>", endpoint='room_item_detail')
 
 
 class TokenRefreshResource(Resource):
@@ -632,6 +662,26 @@ class UserHomeDetailsResource(Resource):
 
 
 api.add_resource(UserHomeDetailsResource, "/user_home_details")
+
+class UpdateItemOrder(Resource):
+    @jwt_required()
+    def patch(self):
+        data = request.get_json()
+        item_order = data.get('item_order')  # A list of item_ids in their new order
+
+        # Optional: Verify that the items belong to the current user's room or subroom
+
+        for index, item_id in enumerate(item_order):
+            room_item = RoomItems.query.filter_by(item_id=item_id).first()
+            if room_item:
+                room_item.order = index
+            else:
+                return {"message": f"Item with id {item_id} not found."}, 404
+
+        db.session.commit()
+        return {"message": "Items reordered successfully!"}, 200
+
+api.add_resource(UpdateItemOrder, "/update-item-order")
 
 
 @jwt.invalid_token_loader

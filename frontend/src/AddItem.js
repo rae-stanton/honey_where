@@ -84,7 +84,7 @@ function AddItem() {
   };
 
   const handleFinish = () => {
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (

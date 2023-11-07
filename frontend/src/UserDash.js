@@ -6,12 +6,17 @@ import ListGroup from "react-bootstrap/ListGroup";
 import Badge from "react-bootstrap/Badge";
 import "./UserDash.css";
 import { Container, Row, Col } from "react-bootstrap";
+import { DraggableItem } from "./DraggableItem"; // Assuming DraggableItem is in DraggableItem.js
+import { DroppableArea } from "./DroppableArea";
+import { useDragDropContext } from './DragDropContext';
 
 function UserDash({ userName }) {
   const token = localStorage.getItem("access_token");
   const [userData, setUserData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItemType, setSelectedItemType] = useState("");
+  const { onDrop, newRoom } = useDragDropContext();
+
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -30,13 +35,14 @@ function UserDash({ userName }) {
         );
         setUserData(response.data);
         console.log(response.data);
+
       } catch (error) {
         console.error("Error fetching user details:", error);
       }
     };
 
     fetchUserDetails();
-  }, []);
+  }, [newRoom]);
 
   const filterItemsByName = (item) => {
     return item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -50,7 +56,7 @@ function UserDash({ userName }) {
   };
 
   const itemTypeToDotColorMap = {
-    HOUSEHOLD: "#FC6600", // All types set to white for now
+    HOUSEHOLD: "#FC6600",
     DECORATION: "#F9A602",
     TOOL: "#FDA50F",
     UTENSIL: "#CC7722",
@@ -98,98 +104,115 @@ function UserDash({ userName }) {
   return (
     <Card className="dashboard-card">
       <Card.Body>
-      <h2>Welcome back, {userName}</h2>
+        <h2>Welcome back, {userName}</h2>
 
-    <Container className="my-4">
-      <Row className="justify-content-center">
-        <Col md={6} className="d-flex flex-column align-items-center">
-          <input
-            type="text"
-            placeholder="Where is my..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="form-control mb-3" // Added Bootstrap classes for styling
-          />
-          <Dropdown onSelect={(selectedKey) => setSelectedItemType(selectedKey)}>
-            <Dropdown.Toggle
-              variant="success"
-              id="dropdown-basic"
-              className="w-100" // This will make the dropdown full width of its parent column
-            >
-              Filter by Type
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="w-100"> {/* Same here for the dropdown menu */}
-              <Dropdown.Item eventKey="">None</Dropdown.Item>
-              {Object.values(ItemType).map((type) => (
-                <Dropdown.Item eventKey={type} key={type}>
-                  {type}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </Col>
-      </Row>
-    </Container>
+        <Container className="my-4">
+          <Row className="justify-content-center">
+            <Col md={6} className="d-flex flex-column align-items-center">
+              <input
+                type="text"
+                placeholder="Where is my..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="form-control mb-3"
+              />
+              <Dropdown
+                onSelect={(selectedKey) => setSelectedItemType(selectedKey)}
+              >
+                <Dropdown.Toggle
+                  variant="success"
+                  id="dropdown-basic"
+                  className="w-100"
+                >
+                  Filter by Type
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="w-100">
+                  {" "}
+                  {/* Same here for the dropdown menu */}
+                  <Dropdown.Item eventKey="">None</Dropdown.Item>
+                  {Object.values(ItemType).map((type) => (
+                    <Dropdown.Item eventKey={type} key={type}>
+                      {type}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </Col>
+          </Row>
+        </Container>
 
-      {userData.home && (
-        <div className="home-details">
-          <h3>Your Hive: {userData.home.name}</h3>
-          <Container>
-            <Row xs={1} md={3} className="g-4">
-              {" "}
-              {/* xs for extra small screens, md for medium-sized screens, with gap (gutter) of 4 */}
-              {userData.home.rooms && userData.home.rooms.length > 0 ? (
-                userData.home.rooms.map((room) => (
-                  <Col key={room.id}>
-                    <Card className="mb-3">
-                      <Card.Header as="h5" className="room-header">
-                        {room.name} <TypePill label={room.room_type} />
-                      </Card.Header>
-                      <ListGroup variant="flush">
-                        {room.items &&
-                          room.items
-                            .filter(filterItemsByName)
-                            .filter(filterItemsByType)
-                            .map((item) => (
-                              <ListGroup.Item key={item.id}>
-                                {item.name}{" "}
-                                <ColoredPill label={item.item_type} />
-                              </ListGroup.Item>
-                            ))}
-                      </ListGroup>
-                      {room.subrooms &&
-                        room.subrooms.map((subroom) => (
-                          <Card
-                            key={subroom.id}
-                            className="mb-2 mt-2 subroom-card"
-                          >
-                            <Card.Header as="h6" className="subroom-header">
-                              {subroom.name}
-                            </Card.Header>
-                            <ListGroup variant="flush">
-                              {subroom.items &&
-                                subroom.items
-                                  .filter(filterItemsByName)
-                                  .filter(filterItemsByType)
-                                  .map((item) => (
-                                    <ListGroup.Item key={item.id}>
+        {userData.home && (
+          <div className="home-details">
+            <h3>Your Hive: {userData.home.name}</h3>
+            <Container>
+              <Row xs={1} md={3} className="g-4">
+                {" "}
+                {userData.home.rooms && userData.home.rooms.length > 0 ? (
+                  userData.home.rooms.map((room) => (
+                    <DroppableArea
+                      key={room.id}
+                      room={room}
+                      onDrop={(item) => {
+                        onDrop(item, room);
+                      }}
+                    >
+                      <Col>
+                        <Card className="mb-3">
+                          <Card.Header as="h5" className="room-header">
+                            {room.name} <TypePill label={room.room_type} />
+                          </Card.Header>
+                          <ListGroup variant="flush">
+                            {room.items &&
+                              room.items
+                                .filter(filterItemsByName)
+                                .filter(filterItemsByType)
+                                .map((item) => (
+                                  <DraggableItem
+                                    key={item.id}
+                                    item={item}
+                                    currentRoomId={room.id}
+                                  >
+                                    <ListGroup.Item>
                                       {item.name}{" "}
                                       <ColoredPill label={item.item_type} />
                                     </ListGroup.Item>
-                                  ))}
-                            </ListGroup>
-                          </Card>
-                        ))}
-                    </Card>
-                  </Col>
-                ))
-              ) : (
-                <p>You have no rooms added yet.</p>
-              )}
-            </Row>
-          </Container>
-        </div>
-      )}
+                                  </DraggableItem>
+                                ))}
+                          </ListGroup>
+                          {room.subrooms &&
+                            room.subrooms.map((subroom) => (
+                              <Card
+                                key={subroom.id}
+                                className="mb-2 mt-2 subroom-card"
+                              >
+                                <Card.Header as="h6" className="subroom-header">
+                                  {subroom.name}
+                                </Card.Header>
+                                <ListGroup variant="flush">
+                                  {subroom.items &&
+                                    subroom.items
+                                      .filter(filterItemsByName)
+                                      .filter(filterItemsByType)
+                                      .map((item) => (
+                                        <ListGroup.Item key={item.id}>
+                                          {item.name}{" "}
+                                          <ColoredPill label={item.item_type} />
+                                        </ListGroup.Item>
+                                      ))}
+                                </ListGroup>
+                              </Card>
+                            ))}
+                        </Card>
+                      </Col>
+                    </DroppableArea>
+                  ))
+                ) : (
+                  <p>You have no rooms added yet.</p>
+                )}
+              </Row>
+            </Container>
+          </div>
+        )}
       </Card.Body>
     </Card>
   );

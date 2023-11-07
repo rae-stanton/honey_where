@@ -185,6 +185,7 @@ class Item(db.Model):
     name = db.Column(db.String(128))
     description = db.Column(db.String(128))
     item_type = db.Column(item_type_enum, nullable=False)
+    order = db.Column(db.Integer, nullable=True, default=0)
     room_items = db.relationship('RoomItems', back_populates='item')
 
     def to_dict(self):
@@ -201,6 +202,7 @@ class Item(db.Model):
 
 class RoomItems(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    order = db.Column(db.Integer, nullable=True, default=0)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=True)
     subroom_id = db.Column(
         db.Integer, db.ForeignKey('subroom.id'), nullable=True)

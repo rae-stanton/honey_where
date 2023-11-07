@@ -9,7 +9,7 @@ function AddHome() {
     const token = localStorage.getItem('access_token');
     const [showAlert, setShowAlert] = useState(false);
 
-    // Validation function
+
     const validate = values => {
         const errors = {};
 
@@ -24,7 +24,7 @@ function AddHome() {
         initialValues: {
             homeName: '',
         },
-        validate, // Add the validation function here
+        validate,
         onSubmit: async (values, { setSubmitting, setStatus }) => {
             try {
                 const response = await axios.post('http://127.0.0.1:5000/assign_home', { name: values.homeName }, {
