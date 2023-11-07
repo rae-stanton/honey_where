@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { Formik, Field, Form } from "formik";
 import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
 
 function UserEditForm({ userId }) {
   return (
@@ -14,9 +15,12 @@ function UserEditForm({ userId }) {
           }}
           onSubmit={async (values, { setSubmitting }) => {
             try {
-              const response = await axios.patch(`http://127.0.0.1:5000/users/${userId}`, {
-                name: values.name,
-              });
+              const response = await axios.patch(
+                `http://127.0.0.1:5000/users/${userId}`,
+                {
+                  name: values.name,
+                }
+              );
 
               if (response.status === 200) {
                 alert("User updated successfully!");
@@ -31,35 +35,49 @@ function UserEditForm({ userId }) {
           }}
         >
           {({ isSubmitting }) => (
-            <Form className="form-border">
-              <br />
+            <Card className="mt-5 w-80 forms">
+              <Form className="form-border">
+                <br />
 
-              <label htmlFor="name">Name</label>
-              <br />
-              <Field id="name" name="name" placeholder="Luna Lucy" />
-              <br />
+                <label htmlFor="name">Name</label>
+                <br />
+                <Field id="name" name="name" placeholder="Luna Lucy" />
+                <br />
 
-              <br />
-              <Button variant="primary" type="submit" className="form-button" disabled={isSubmitting}>
-                Edit User
-              </Button>
-              <br />
-              <Button variant="danger" onClick={async () => {
-                try {
-                  const response = await axios.delete(`http://127.0.0.1:5000/users/${userId}`);
+                <br />
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="login-button"
+                  disabled={isSubmitting}
+                >
+                  Edit User
+                </Button>
+                <br />
+                <Button
+                  variant="danger"
+                  onClick={async () => {
+                    try {
+                      const response = await axios.delete(
+                        `http://127.0.0.1:5000/users/${userId}`
+                      );
 
-                  if (response.status === 200) {
-                    alert("User deleted successfully!");
-                  } else {
-                    alert(response.data.message || "User deletion failed.");
-                  }
-                } catch (error) {
-                  alert(error.response.data.message || "User deletion failed.");
-                }
-              }}>
-                Delete User
-              </Button>
-            </Form>
+                      if (response.status === 200) {
+                        alert("User deleted successfully!");
+                      } else {
+                        alert(response.data.message || "User deletion failed.");
+                      }
+                    } catch (error) {
+                      alert(
+                        error.response.data.message || "User deletion failed."
+                      );
+                    }
+                  }}
+                >
+                  Delete User
+                </Button>
+              </Form>
+            </Card>
           )}
         </Formik>
       </div>

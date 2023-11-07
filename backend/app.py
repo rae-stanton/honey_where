@@ -29,7 +29,6 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 
 jwt = JWTManager(app)
 
-# A simple database for blacklisted tokens
 blacklist = set()
 
 
@@ -85,20 +84,15 @@ class UserById(Resource):
             user_data['home']['rooms'] = [room.to_dict()
                                           for room in user.home.rooms]
 
-            # Note: We've removed the unnecessary loop for rooms.
-            # If you have other processing to do with each room, you can reintroduce it.
-
         return jsonify(user_data)
 
     def patch(self, user_id):
         data = request.get_json()
 
-        # Fetch the user by ID
         user = User.query.get(user_id)
         if not user:
             return {"message": "User not found."}, 404
 
-        # Update fields if provided, will need to add email and password later.
         if 'name' in data:
             user.name = data['name']
 
@@ -302,13 +296,10 @@ class SubroomByIdResource(Resource):
         if 'description' in data:
             subroom.description = data['description']
         if 'room_id' in data:
-            # Check if the provided home_id exists before assigning
             room_exists = Room.query.get(data['room_id'])
             if not room_exists:
                 return {"message": "Room with provided room_id not found."}, 404
             subroom.room_id = data['room_id']
-        # Add more fields as required for patching
-        # (similar to the Room patch method)
 
         db.session.commit()
         return {"message": "Subroom updated successfully!", "subroom": subroom.to_dict()}, 200
@@ -349,7 +340,7 @@ class ItemResource(Resource):
         item = Item(name=item_name, description=description,
                     item_type=item_type)
         db.session.add(item)
-        db.session.flush()  # Flush to get the item ID
+        db.session.flush()
 
         room_item = RoomItems(
             room_id=room_id, subroom_id=subroom_id, item_id=item.id)
@@ -376,7 +367,6 @@ class RoomItemsResource(Resource):
         room_id = data.get('room_id')
         item_id = data.get('item_id')
 
-        # Check if the room-item association already exists
         existing = RoomItems.query.filter_by(
             room_id=room_id, item_id=item_id).first()
         if existing:
@@ -401,7 +391,6 @@ class RoomItemsByIdResource(Resource):
             room_items = RoomItems.query.filter_by(room_id=room_id).all()
             return {"items": [room_item.to_dict() for room_item in room_items]}, 200
 
-        # If no IDs are provided, fetch all room-items (optional based on your needs)
         else:
             room_items = RoomItems.query.all()
             print(room_items)
@@ -428,25 +417,18 @@ class RoomItemsByIdResource(Resource):
         if not room_item:
             return {"message": "Room-Item association not found."}, 404
 
-        # Update room or subroom association if provided
         if new_room_id is not None:
             room_item.room_id = new_room_id
-            room_item.subroom_id = None  # Assuming an item can't be in a room and subroom at the same time
+            room_item.subroom_id = None
         elif new_subroom_id is not None:
             room_item.subroom_id = new_subroom_id
-            # Optionally, update room_id if necessary, depending on your data model
 
-        # Update order if provided
         if new_order is not None:
             room_item.order = new_order
 
         db.session.commit()
         return {"message": "Item updated successfully!"}, 200
 
-
-# api.add_resource(RoomItemsResource, "/room-items")
-# api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>")
-# api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>/<int:item_id>")
 api.add_resource(RoomItemsResource, "/room-items", endpoint='room_items')
 api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>", endpoint='room_items_by_id')
 api.add_resource(RoomItemsByIdResource, "/room-items/<int:room_id>/<int:item_id>", endpoint='room_item_detail')
