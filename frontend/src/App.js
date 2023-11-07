@@ -13,7 +13,7 @@ import UserDash from "./UserDash";
 import UserEditForm from "./UserEditForm";
 import PrivateRouteWrapper from "./PrivateRouteWrapper";
 import honeyImage from "../src/images/honeydrip.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { DragDropProvider } from "./DragDropContext";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -24,6 +24,20 @@ function App() {
   );
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+    const storedUserName = localStorage.getItem("user_name");
+    if (storedUserName) {
+      setUserName(storedUserName);
+    }
+
+    const storedUserId = localStorage.getItem("user_id");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+
+    setIsLoggedIn(Boolean(localStorage.getItem("access_token")));
+  }, []);
 
   return (
     <DndProvider backend={HTML5Backend}>

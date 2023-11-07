@@ -69,7 +69,7 @@ function Login({ setIsLoggedIn, setUserName, setUserId }) {
                   setIsLoggedIn(true);
                   setUserName(response.data.user_name);
                   setUserId(response.data.user_id);
-                  navigate("/dashboard"); // Redirect to home
+                  navigate("/dashboard");
                 } else {
                   alert("Login failed");
                 }
