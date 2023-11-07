@@ -14,6 +14,9 @@ import UserEditForm from "./UserEditForm";
 import PrivateRouteWrapper from "./PrivateRouteWrapper";
 import honeyImage from "../src/images/honeydrip.png";
 import { useState } from "react";
+import { DndProvider } from "react-dnd";
+import { DragDropProvider } from "./DragDropContext";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -23,88 +26,92 @@ function App() {
   const [userId, setUserId] = useState("");
 
   return (
-    <Router>
-      <div
-        className="app-background"
-        style={{ backgroundImage: `url(${honeyImage})` }}
-      >
-        {/* NavBar import */}
-        <AppNavbar
-          isLoggedIn={isLoggedIn}
-          setIsLoggedIn={setIsLoggedIn}
-          userName={userName}
-        />
+    <DndProvider backend={HTML5Backend}>
+      <DragDropProvider>
+        <Router>
+          <div
+            className="app-background"
+            style={{ backgroundImage: `url(${honeyImage})` }}
+          >
+            {/* NavBar import */}
+            <AppNavbar
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              userName={userName}
+            />
 
-        {/* Routes here */}
-        <Routes>
-          <Route path="/" element={<Home userName={userName} />} />
-          <Route path="signup" element={<Signup />} />
-          <Route
-            path="login"
-            element={
-              <Login
-                isLoggedIn={isLoggedIn}
-                setIsLoggedIn={setIsLoggedIn}
-                userName={userName}
-                setUserName={setUserName}
-                userId={userId}
-                setUserId={setUserId}
+            {/* Routes here */}
+            <Routes>
+              <Route path="/" element={<Home userName={userName} />} />
+              <Route path="signup" element={<Signup />} />
+              <Route
+                path="login"
+                element={
+                  <Login
+                    isLoggedIn={isLoggedIn}
+                    setIsLoggedIn={setIsLoggedIn}
+                    userName={userName}
+                    setUserName={setUserName}
+                    userId={userId}
+                    setUserId={setUserId}
+                  />
+                }
               />
-            }
-          />
-          <Route
-            path="logout"
-            element={
-              <Logout
-                isLoggedIn={isLoggedIn}
-                setIsLoggedIn={setIsLoggedIn}
-                setUserName={setUserName}
+              <Route
+                path="logout"
+                element={
+                  <Logout
+                    isLoggedIn={isLoggedIn}
+                    setIsLoggedIn={setIsLoggedIn}
+                    setUserName={setUserName}
+                  />
+                }
               />
-            }
-          />
-          <Route
-            path="add-home"
-            element={
-              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                <AddHome />
-              </PrivateRouteWrapper>
-            }
-          />
-          <Route
-            path="add-room"
-            element={
-              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                <AddRoom />
-              </PrivateRouteWrapper>
-            }
-          />
-          <Route
-            path="add-item"
-            element={
-              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                <AddItem />
-              </PrivateRouteWrapper>
-            }
-          />
-          <Route
-            path="dashboard"
-            element={
-              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                <UserDash userName={userName} />
-              </PrivateRouteWrapper>
-            }
-          />
-          <Route
-            path="edit-user"
-            element={
-              <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                <UserEditForm userName={userName} />
-              </PrivateRouteWrapper>
-            }
-          />
-        </Routes>
-      </div>
-    </Router>
+              <Route
+                path="add-home"
+                element={
+                  <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                    <AddHome />
+                  </PrivateRouteWrapper>
+                }
+              />
+              <Route
+                path="add-room"
+                element={
+                  <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                    <AddRoom />
+                  </PrivateRouteWrapper>
+                }
+              />
+              <Route
+                path="add-item"
+                element={
+                  <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                    <AddItem />
+                  </PrivateRouteWrapper>
+                }
+              />
+              <Route
+                path="dashboard"
+                element={
+                  <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                    <UserDash userName={userName} />
+                  </PrivateRouteWrapper>
+                }
+              />
+              <Route
+                path="edit-user"
+                element={
+                  <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                    <UserEditForm userName={userName} />
+                  </PrivateRouteWrapper>
+                }
+              />
+            </Routes>
+          </div>
+        </Router>
+      </DragDropProvider>
+    </DndProvider>
   );
 }
 
