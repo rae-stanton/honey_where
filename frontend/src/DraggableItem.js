@@ -24,24 +24,27 @@
 //   );
 // };
 // DraggableItem.js
+import React from 'react';
 import { useDrag } from 'react-dnd';
-import { ItemTypes } from './ItemTypes'; // This should be the constant defining your draggable types
+import { ItemTypes } from './ItemTypes'; // Make sure this is the correct path to your ItemTypes
 
-export const DraggableItem = ({ item }) => {
-  // Destructure the isDragging property from the object returned by useDrag's collect function
+export const DraggableItem = ({ item, children }) => {
   const [{ isDragging }, drag] = useDrag({
-    type: ItemTypes.ITEM, // Assuming ITEM is a valid type from your ItemTypes
-    item: { id: item.id }, // The data that will be available to the drop targets
-    collect: (monitor) => ({
+    type: ItemTypes.ITEM,
+    item: { id: item.id },
+    collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
-  // Use isDragging here
-  return (
-    <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
-      {item.name}
-      {/* Other item content */}
-    </div>
+  // If children is a single element, clone it. Otherwise, wrap children in a div
+  return React.Children.map(children, (child) =>
+    React.isValidElement(child)
+      ? React.cloneElement(child, {
+          ref: drag,
+          style: { ...child.props.style, opacity: isDragging ? 0.5 : 1 },
+        })
+      : child
   );
 };
+
