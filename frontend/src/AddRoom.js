@@ -57,7 +57,7 @@ function AddRoom() {
   };
 
   const handleFinish = () => {
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
