@@ -1,7 +1,7 @@
-import React from 'react';
-import { Card, Container } from 'react-bootstrap';
-import './Home.css'; // Import your custom styles
-import logo from "../src/images/navgraphic.png"; // Make sure this path is correct
+import React from "react";
+import { Card, Container } from "react-bootstrap";
+import "./Home.css";
+import logo from "../src/images/navgraphic.png";
 
 function Home({ userName }) {
   return (
@@ -10,18 +10,17 @@ function Home({ userName }) {
         <Card.Body>
           <Card.Title>Welcome to the Home Page</Card.Title>
           <Card.Text>
-            Hello, {userName}!
+            Hello {userName}!
             <br />
             What is HoneyWhere?
             <br />
             More text on what this is that fades in
           </Card.Text>
           {/* Other content */}
-                  <div className="custom-image-container">
-          <img src={logo} alt="Custom" className="bottom-right-image" />
-        </div>
+          <div className="custom-image-container">
+            <img src={logo} alt="Custom" className="bottom-right-image" />
+          </div>
         </Card.Body>
-
       </Card>
     </Container>
   );

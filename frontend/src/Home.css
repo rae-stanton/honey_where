@@ -1,13 +1,12 @@
 .home-card {
   position: relative;
-  /* Other styles for your card */
   display: flex;
-  background: #f8f9fa; /* Example background color, change as needed */
-  border: 2px solid #ddd; /* Example border, change as needed */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Example box shadow, adjust as needed */
-  border-radius: 0.25rem; /* Same border-radius as Bootstrap's default */
-  padding: 40px; /* Space inside the card */
-  margin: 40px 0; /* Margin around the card */
+  background: #f8f9fa;
+  border: 2px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.25rem;
+  padding: 40px;
+  margin: 40px 0;
   width: 85%;
   justify-content: center;
   margin-left: auto;
@@ -18,15 +17,12 @@
   position: absolute;
   bottom: 5px;
   right: 5px;
-  /* Adjust the size if needed, and add padding if you want some space from the edges */
 }
 
 .bottom-right-image {
-  max-width: 200px; /* Example size - adjust as needed */
-  max-height: 200px; /* Example size - adjust as needed */
+  max-width: 200px;
+  max-height: 200px;
 }
-
-/* In your Home.css file */
 
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -37,10 +33,8 @@
   animation: fadeIn 2s ease-in forwards;
 }
 
-/* Custom focus color for form inputs using plain CSS */
 .form-control:focus {
-  border-color: #FFA500; /* Orange border */
-  /* This creates a box-shadow with an rgba color. You may need to adjust the RGB values to get the orange shade you want. */
+  border-color: #FFA500;
   box-shadow: 0 0 0 0.2rem rgba(255, 165, 0, 0.5);
 }
 
