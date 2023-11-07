@@ -8,12 +8,15 @@ import "./UserDash.css";
 import { Container, Row, Col } from "react-bootstrap";
 import { DraggableItem } from "./DraggableItem"; // Assuming DraggableItem is in DraggableItem.js
 import { DroppableArea } from "./DroppableArea";
+import { useDragDropContext } from './DragDropContext';
 
 function UserDash({ userName }) {
   const token = localStorage.getItem("access_token");
   const [userData, setUserData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItemType, setSelectedItemType] = useState("");
+  const { onDrop } = useDragDropContext();
+
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -32,6 +35,7 @@ function UserDash({ userName }) {
         );
         setUserData(response.data);
         console.log(response.data);
+
       } catch (error) {
         console.error("Error fetching user details:", error);
       }
@@ -52,7 +56,7 @@ function UserDash({ userName }) {
   };
 
   const itemTypeToDotColorMap = {
-    HOUSEHOLD: "#FC6600", // All types set to white for now
+    HOUSEHOLD: "#FC6600",
     DECORATION: "#F9A602",
     TOOL: "#FDA50F",
     UTENSIL: "#CC7722",
@@ -110,7 +114,7 @@ function UserDash({ userName }) {
                 placeholder="Where is my..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-control mb-3" // Added Bootstrap classes for styling
+                className="form-control mb-3"
               />
               <Dropdown
                 onSelect={(selectedKey) => setSelectedItemType(selectedKey)}
@@ -118,7 +122,7 @@ function UserDash({ userName }) {
                 <Dropdown.Toggle
                   variant="success"
                   id="dropdown-basic"
-                  className="w-100" // This will make the dropdown full width of its parent column
+                  className="w-100"
                 >
                   Filter by Type
                 </Dropdown.Toggle>
@@ -143,10 +147,15 @@ function UserDash({ userName }) {
             <Container>
               <Row xs={1} md={3} className="g-4">
                 {" "}
-                {/* xs for extra small screens, md for medium-sized screens, with gap (gutter) of 4 */}
                 {userData.home.rooms && userData.home.rooms.length > 0 ? (
                   userData.home.rooms.map((room) => (
-                    <DroppableArea key={room.id} room={room}>
+                    <DroppableArea
+                      key={room.id}
+                      room={room}
+                      onDrop={(item) => {
+                        onDrop(item, room);
+                      }}
+                    >
                       <Col>
                         <Card className="mb-3">
                           <Card.Header as="h5" className="room-header">
