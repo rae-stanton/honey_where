@@ -28,10 +28,10 @@ import React from 'react';
 import { useDrag } from 'react-dnd';
 import { ItemTypes } from './ItemTypes'; // Make sure this is the correct path to your ItemTypes
 
-export const DraggableItem = ({ item, children }) => {
+export const DraggableItem = ({ item, children, currentRoomId }) => {
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.ITEM,
-    item: { id: item.id },
+    item: { id: item.id, room_id: currentRoomId },
     collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),

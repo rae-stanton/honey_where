@@ -1,23 +1,29 @@
+import React from 'react';
 import { useDrop } from 'react-dnd';
-import { ItemTypes } from './ItemTypes'; // This should be the constant defining your draggable types
+import { ItemTypes } from './ItemTypes';
+import { useDragDropContext } from './DragDropContext';
 
-export const DroppableArea = ({ room, onDrop }) => {
-  const [, drop] = useDrop({
-    accept: ItemTypes.ITEM, // Assuming ITEM is a valid type from your ItemTypes
+export const DroppableArea = ({ room, children }) => {
+  const { onDrop } = useDragDropContext();
+
+  const [, dropRef] = useDrop({
+    accept: ItemTypes.ITEM,
     drop: (item, monitor) => {
       if (monitor.isOver()) {
-        onDrop(item, room);
+        onDrop(item, room); // room should contain at least an id property
       }
     },
-    collect: monitor => ({
-      isOver: monitor.isOver(),
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
     }),
   });
 
   return (
-    <div ref={drop}>
-      {/* Room content */}
-      {/* This is where you map over the items in the room to create DraggableItem components */}
+    <div ref={dropRef} className="droppable-area">
+      {/* You can put your room content here */}
+      {/* children could be a list of DraggableItem components */}
+      {children}
     </div>
   );
 };
+

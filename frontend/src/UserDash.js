@@ -146,50 +146,52 @@ function UserDash({ userName }) {
                 {/* xs for extra small screens, md for medium-sized screens, with gap (gutter) of 4 */}
                 {userData.home.rooms && userData.home.rooms.length > 0 ? (
                   userData.home.rooms.map((room) => (
-                    <Col key={room.id}>
-                      <Card className="mb-3">
-                        <Card.Header as="h5" className="room-header">
-                          {room.name} <TypePill label={room.room_type} />
-                        </Card.Header>
-                        <ListGroup variant="flush">
-                          {room.items &&
-                            room.items
-                              .filter(filterItemsByName)
-                              .filter(filterItemsByType)
-                              .map((item) => (
-                                <DraggableItem key={item.id} item={item}>
-                                  <ListGroup.Item>
-                                    {item.name}{" "}
-                                    <ColoredPill label={item.item_type} />
-                                  </ListGroup.Item>
-                                </DraggableItem>
-                              ))}
-                        </ListGroup>
-                        {room.subrooms &&
-                          room.subrooms.map((subroom) => (
-                            <Card
-                              key={subroom.id}
-                              className="mb-2 mt-2 subroom-card"
-                            >
-                              <Card.Header as="h6" className="subroom-header">
-                                {subroom.name}
-                              </Card.Header>
-                              <ListGroup variant="flush">
-                                {subroom.items &&
-                                  subroom.items
-                                    .filter(filterItemsByName)
-                                    .filter(filterItemsByType)
-                                    .map((item) => (
-                                      <ListGroup.Item key={item.id}>
-                                        {item.name}{" "}
-                                        <ColoredPill label={item.item_type} />
-                                      </ListGroup.Item>
-                                    ))}
-                              </ListGroup>
-                            </Card>
-                          ))}
-                      </Card>
-                    </Col>
+                    <DroppableArea key={room.id} room={room}>
+                      <Col>
+                        <Card className="mb-3">
+                          <Card.Header as="h5" className="room-header">
+                            {room.name} <TypePill label={room.room_type} />
+                          </Card.Header>
+                          <ListGroup variant="flush">
+                            {room.items &&
+                              room.items
+                                .filter(filterItemsByName)
+                                .filter(filterItemsByType)
+                                .map((item) => (
+                                  <DraggableItem key={item.id} item={item} currentRoomId={room.id}>
+                                    <ListGroup.Item>
+                                      {item.name}{" "}
+                                      <ColoredPill label={item.item_type} />
+                                    </ListGroup.Item>
+                                  </DraggableItem>
+                                ))}
+                          </ListGroup>
+                          {room.subrooms &&
+                            room.subrooms.map((subroom) => (
+                              <Card
+                                key={subroom.id}
+                                className="mb-2 mt-2 subroom-card"
+                              >
+                                <Card.Header as="h6" className="subroom-header">
+                                  {subroom.name}
+                                </Card.Header>
+                                <ListGroup variant="flush">
+                                  {subroom.items &&
+                                    subroom.items
+                                      .filter(filterItemsByName)
+                                      .filter(filterItemsByType)
+                                      .map((item) => (
+                                        <ListGroup.Item key={item.id}>
+                                          {item.name}{" "}
+                                          <ColoredPill label={item.item_type} />
+                                        </ListGroup.Item>
+                                      ))}
+                                </ListGroup>
+                              </Card>
+                            ))}
+                        </Card>
+                      </Col>
+                    </DroppableArea>
                   ))
                 ) : (
                   <p>You have no rooms added yet.</p>
