@@ -275,8 +275,10 @@ class SubroomResource(Resource):
         db.session.commit()
         return {"message": "Subroom created successfully!", "subroom": subroom.to_dict()}, 201
 
+
 api.add_resource(SubroomResource, "/subrooms")
-#comment to make sure this works
+# comment to make sure this works
+
 
 class SubroomByIdResource(Resource):
     @jwt_required
@@ -576,6 +578,7 @@ class AddItemResource(Resource):
         item_name = data.get("name")
         item_type = data.get("type")
         room_id = data.get("roomId")
+        subroom_id = data.get("subroomId")
 
         # Validate item type enum
         if not item_type:
@@ -583,23 +586,37 @@ class AddItemResource(Resource):
         if item_type not in ItemType._member_names_:
             return {"message": f"Invalid item_type. Allowed values are {list(ItemType._member_names_)}"}, 400
 
-        # Check if room exists
-        room = Room.query.get(room_id)
-        if not room:
-            return {"message": "Room not found."}, 404
+        # Check if room or subroom exists
+        room = Room.query.get(room_id) if room_id else None
+        subroom = Subroom.query.get(subroom_id) if subroom_id else None
+        if not room and not subroom:
+            return {"message": "Room or Subroom not found."}, 404
 
         # Create a new item
         item = Item(name=item_name, item_type=ItemType[item_type])
         db.session.add(item)
         db.session.flush()  # To get the item's ID after adding it
 
-        # Associate the item with the room
-        room_item = RoomItems(room_id=room_id, item_id=item.id)
+        if room:
+            room_item = RoomItems(room_id=room_id, item_id=item.id)
+            return {
+                "message": f"Item '{item_name}' added successfully to room '{room.name}'!",
+                "item": item.to_dict()
+            }, 201
+        elif subroom:
+            room_item = RoomItems(subroom_id=subroom_id, item_id=item.id)
+            return {
+                "message": f"Item '{item_name}' added successfully to subroom '{subroom.name}'!",
+                "item": item.to_dict()
+            }, 201
         db.session.add(room_item)
 
         db.session.commit()
 
-        return {"message": f"Item '{item_name}' added successfully to room {room.name}!"}, 201
+        return {
+            "message": f"Item '{item_name}' added successfully to {'room' if room else 'subroom'}!",
+            "item": item.to_dict()
+        }, 201
 
 
 api.add_resource(AddItemResource, "/add_item")
