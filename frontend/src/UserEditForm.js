@@ -104,7 +104,7 @@ function UserEditForm({ userId, updateUserName }) {
                 <br />
                 <Button
                   variant="danger"
-                  onClick={async () => {
+                  onClick={async (values) => {
                     if (
                       window.confirm(
                         "Are you sure you want to delete your account? This action cannot be undone."
@@ -122,7 +122,9 @@ function UserEditForm({ userId, updateUserName }) {
 
                         if (response.status === 200) {
                           alert("User deleted successfully!");
-                          localStorage.clear(); // Clear local storage
+                          localStorage.clear();
+                          // Clear local storage
+                          updateUserName(values.name);
                           navigate("/"); // Navigate to home or login page
                         } else {
                           alert(
