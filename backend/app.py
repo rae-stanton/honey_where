@@ -252,10 +252,11 @@ api.add_resource(RoomByIdResource, "/rooms/<int:room_id>")
 
 
 class SubroomResource(Resource):
+    @jwt_required
     def get(self):
         subrooms = Subroom.query.all()
         return jsonify({"subrooms": [subroom.to_dict(include_items=True) for subroom in subrooms]})
-
+    @jwt_required
     def post(self):
         data = request.get_json()
         subroom_name = data.get('name')
@@ -278,12 +279,14 @@ api.add_resource(SubroomResource, "/subrooms")
 
 
 class SubroomByIdResource(Resource):
+    @jwt_required
     def get(self, subroom_id):
         subroom = Subroom.query.get(subroom_id)
         if not subroom:
             return {"message": "Subroom not found."}, 404
         return jsonify(subroom.to_dict(include_items=True, include_rooms=True))
 
+    @jwt_required
     def patch(self, subroom_id):
         subroom = Subroom.query.get(subroom_id)
         if not subroom:
@@ -304,6 +307,7 @@ class SubroomByIdResource(Resource):
         db.session.commit()
         return {"message": "Subroom updated successfully!", "subroom": subroom.to_dict()}, 200
 
+    @jwt_required
     def delete(self, subroom_id):
         subroom = Subroom.query.get(subroom_id)
         if not subroom:
@@ -567,6 +571,7 @@ class AddItemResource(Resource):
         item_name = data.get("name")
         item_type = data.get("type")
         room_id = data.get("roomId")
+        subroom_id = data.get("subroomId")  # Added line to handle subroomId
 
         # Validate item type enum
         if not item_type:
@@ -574,23 +579,51 @@ class AddItemResource(Resource):
         if item_type not in ItemType._member_names_:
             return {"message": f"Invalid item_type. Allowed values are {list(ItemType._member_names_)}"}, 400
 
-        # Check if room exists
-        room = Room.query.get(room_id)
-        if not room:
-            return {"message": "Room not found."}, 404
+        # Check if room or subroom exists
+        if room_id:
+            room = Room.query.get(room_id)
+            if not room:
+                return {"message": "Room not found."}, 404
+        elif subroom_id:
+            subroom = Subroom.query.get(subroom_id)
+            if not subroom:
+                return {"message": "Subroom not found."}, 404
+        else:
+            return {"message": "Either room_id or subroom_id is required"}, 400
 
         # Create a new item
         item = Item(name=item_name, item_type=ItemType[item_type])
         db.session.add(item)
         db.session.flush()  # To get the item's ID after adding it
 
-        # Associate the item with the room
-        room_item = RoomItems(room_id=room_id, item_id=item.id)
-        db.session.add(room_item)
+        # Associate the item with the room or subroom
+        # Validate provided IDs
+        if not (room_id or subroom_id):
+            return {"message": "Either room_id or subroom_id must be provided."}, 400
 
+        # Check if room or subroom exists and create association
+        if room_id:
+            room = Room.query.get(room_id)
+            if not room:
+                return {"message": "Room not found."}, 404
+            room_item = RoomItems(room_id=room_id, item_id=item.id)
+        else:
+            subroom = Subroom.query.get(subroom_id)
+            if not subroom:
+                return {"message": "Subroom not found."}, 404
+            room_item = RoomItems(subroom_id=subroom_id, item_id=item.id)
+
+        db.session.add(item)
+        db.session.add(room_item)
         db.session.commit()
 
-        return {"message": f"Item '{item_name}' added successfully to room {room.name}!"}, 201
+
+        # Return success message based on room or subroom
+        if room_id:
+            return {"message": f"Item '{item_name}' added successfully to room {room.name}!"}, 201
+        else:
+            return {"message": f"Item '{item_name}' added successfully to subroom {subroom.name}!"}, 201
+
 api.add_resource(AddItemResource, "/add_item")
 
 class UserHomeDetailsResource(Resource):

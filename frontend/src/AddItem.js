@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import DismissibleSuccessAlert from "./SuccessAlert";
-import { Card, Button } from "react-bootstrap";
+import { Card, Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 function AddItem() {
@@ -10,30 +10,38 @@ function AddItem() {
   const [showAlert, setShowAlert] = useState(false);
   const [itemAdded, setItemAdded] = useState(false);
   const [rooms, setRooms] = useState([]);
+  const [subrooms, setSubrooms] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchRooms = async () => {
+    const fetchRoomsAndSubrooms = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/rooms", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const roomsResponse = await axios.get("http://127.0.0.1:5000/rooms", {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        setRooms(response.data.rooms || []);
+        setRooms(roomsResponse.data.rooms || []);
+
+        const subroomsResponse = await axios.get(
+          "http://127.0.0.1:5000/subrooms",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setSubrooms(subroomsResponse.data.subrooms || []);
       } catch (error) {
-        console.error("Error fetching rooms:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchRooms();
+    fetchRoomsAndSubrooms();
   }, [token]);
 
   const formik = useFormik({
     initialValues: {
       itemName: "",
       itemType: "",
-      roomId: "", // Assuming you want to add item to a room immediately
+      roomId: "",
+      subroomId: "",
     },
     validate: (values) => {
       const errors = {};
@@ -46,21 +54,25 @@ function AddItem() {
         errors.itemType = "Please select an item type";
       }
 
-      if (!values.roomId) {
-        errors.roomId = "Please select a room";
+      if (!values.roomId && !values.subroomId) {
+        errors.roomOrSubroom = "Please select a room or a subroom";
       }
 
       return errors;
     },
     onSubmit: async (values, { setSubmitting, setStatus }) => {
+      const postData = {
+        name: values.itemName,
+        type: values.itemType,
+        ...(values.subroomId
+          ? { subroomId: values.subroomId }
+          : { roomId: values.roomId }),
+      };
+
       try {
         const response = await axios.post(
           "http://127.0.0.1:5000/add_item",
-          {
-            name: values.itemName,
-            type: values.itemType,
-            roomId: values.roomId,
-          },
+          postData,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -91,7 +103,7 @@ function AddItem() {
     <div className="d-flex justify-content-center align-items-center vh-85">
       <Card className="mt-5 w-80 forms">
         <Card.Body>
-          {showAlert && <DismissibleSuccessAlert />}
+          {showAlert && <DismissibleSuccessAlert message={formik.status} />}
           <h4 className="header-text text-center text-primary mb-4">
             Add An Item
           </h4>
@@ -101,7 +113,6 @@ function AddItem() {
               <p>
                 Your item was added successfully! Would you like to add another?
               </p>
-
               <div
                 style={{
                   display: "flex",
@@ -109,21 +120,19 @@ function AddItem() {
                   gap: "8px",
                 }}
               >
-                <Button className="login-button" onClick={handleAddMore}>
+                <Button variant="primary" onClick={handleAddMore}>
                   Yes, add more
                 </Button>
-                <Button className="login-button" onClick={handleFinish}>
+                <Button variant="secondary" onClick={handleFinish}>
                   No, I'm done
                 </Button>
               </div>
             </div>
           ) : (
-            <form onSubmit={formik.handleSubmit}>
-              <div className="mb-3">
-                <label htmlFor="itemName" className="form-label">
-                  Item Name
-                </label>
-                <input
+            <Form onSubmit={formik.handleSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label htmlFor="itemName">Item Name</Form.Label>
+                <Form.Control
                   id="itemName"
                   name="itemName"
                   type="text"
@@ -131,26 +140,20 @@ function AddItem() {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.itemName}
-                  className="form-control"
                 />
-                {formik.touched.itemName && formik.errors.itemName ? (
-                  <div className="text-danger mt-2">
-                    {formik.errors.itemName}
-                  </div>
-                ) : null}
-              </div>
+                {formik.touched.itemName && formik.errors.itemName && (
+                  <div className="text-danger">{formik.errors.itemName}</div>
+                )}
+              </Form.Group>
 
-              <div className="mb-3">
-                <label htmlFor="itemType" className="form-label">
-                  Item Type
-                </label>
-                <select
+              <Form.Group className="mb-3">
+                <Form.Label htmlFor="itemType">Item Type</Form.Label>
+                <Form.Select
                   id="itemType"
                   name="itemType"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.itemType}
-                  className="form-control"
                 >
                   {/* Here you would populate the options based on the ItemType enum */}
                   <option value="" label="Select item type" />
@@ -165,49 +168,73 @@ function AddItem() {
                   <option value="CLOTHING" label="Clothing" />
                   <option value="PET" label="Pet" />
                   <option value="MISCELLANEOUS" label="Miscellaneous" />
+                </Form.Select>
+                {formik.touched.itemType && formik.errors.itemType && (
+                  <div className="text-danger">{formik.errors.itemType}</div>
+                )}
+              </Form.Group>
 
-                  {/* ... Add other types */}
-                </select>
-                {formik.touched.itemType && formik.errors.itemType ? (
-                  <div className="text-danger mt-2">
-                    {formik.errors.itemType}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="roomId" className="form-label">
-                  Room
-                </label>
-                <select
+              <Form.Group className="mb-3">
+                <Form.Label htmlFor="roomId">Room</Form.Label>
+                <Form.Select
                   id="roomId"
                   name="roomId"
-                  onChange={formik.handleChange}
+                  onChange={(e) => {
+                    formik.setFieldValue("roomId", e.target.value);
+                    formik.setFieldValue("subroomId", ""); // Reset subroom when room changes
+                  }}
                   onBlur={formik.handleBlur}
                   value={formik.values.roomId}
-                  className="form-control"
                 >
-                  <option value="" label="Select a room" />
+                  <option value="">Select a room</option>
                   {rooms.map((room) => (
-                    <option key={room.id} value={room.id} label={room.name} />
+                    <option key={room.id} value={room.id}>
+                      {room.name}
+                    </option>
                   ))}
-                </select>
-                {formik.touched.roomId && formik.errors.roomId ? (
-                  <div className="text-danger mt-2">{formik.errors.roomId}</div>
-                ) : null}
-              </div>
+                </Form.Select>
+                {formik.touched.roomId && formik.errors.roomId && (
+                  <div className="text-danger">{formik.errors.roomId}</div>
+                )}
+              </Form.Group>
+
+              {formik.values.roomId && (
+                <Form.Group className="mb-3">
+                  <Form.Label htmlFor="subroomId">
+                    Subroom (optional)
+                  </Form.Label>
+                  <Form.Select
+                    id="subroomId"
+                    name="subroomId"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.subroomId}
+                  >
+                    <option value="">Select a subroom</option>
+                    {subrooms
+                      .filter((subroom) =>
+                        subroom.rooms.some(
+                          (room) => room.id === parseInt(formik.values.roomId)
+                        )
+                      )
+                      .map((subroom) => (
+                        <option key={subroom.id} value={subroom.id}>
+                          {subroom.name}
+                        </option>
+                      ))}
+                  </Form.Select>
+                </Form.Group>
+              )}
 
               <Button
                 type="submit"
-                className="w-100 mb-3 btn-primary login-button"
+                variant="primary"
+                className="w-100 mb-3"
                 disabled={formik.isSubmitting}
               >
                 {formik.isSubmitting ? "Adding..." : "Add Item"}
               </Button>
-              {formik.status && (
-                <p className="text-center p-text-login">{formik.status}</p>
-              )}
-            </form>
+            </Form>
           )}
         </Card.Body>
       </Card>
