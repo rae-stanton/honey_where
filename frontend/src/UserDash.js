@@ -33,6 +33,7 @@ function UserDash({ userName }) {
             },
           }
         );
+
         setUserData(response.data);
         console.log(response.data);
 

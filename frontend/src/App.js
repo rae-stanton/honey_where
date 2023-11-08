@@ -38,6 +38,10 @@ function App() {
 
     setIsLoggedIn(Boolean(localStorage.getItem("access_token")));
   }, []);
+  function updateUserName(newName) {
+    setUserName(newName);
+    localStorage.setItem("user_name", newName);
+  }
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -117,7 +121,7 @@ function App() {
                 path="edit-user"
                 element={
                   <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                    <UserEditForm userName={userName} />
+                    <UserEditForm userName={userName} userId={userId} updateUserName={updateUserName} />
                   </PrivateRouteWrapper>
                 }
               />

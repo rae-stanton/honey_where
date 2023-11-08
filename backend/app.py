@@ -456,7 +456,8 @@ class LoginResource(Resource):
             return {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
-                "user_name": user.name
+                "user_name": user.name,
+                "user_id": user.id
             }, 200
         return {"message": "Invalid email or password."}, 401
 
