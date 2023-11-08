@@ -8,6 +8,7 @@ import Login from "./Login";
 import Logout from "./Logout";
 import AddHome from "./HomeForm";
 import AddRoom from "./AddRoom";
+import AddSubroom from "./AddSubroom";
 import AddItem from "./AddItem";
 import UserDash from "./UserDash";
 import UserEditForm from "./UserEditForm";
@@ -102,6 +103,14 @@ function App() {
                 }
               />
               <Route
+                path="add-subroom"
+                element={
+                  <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
+                    <AddSubroom />
+                  </PrivateRouteWrapper>
+                }
+              />
+              <Route
                 path="add-item"
                 element={
                   <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
@@ -121,7 +130,11 @@ function App() {
                 path="edit-user"
                 element={
                   <PrivateRouteWrapper isLoggedIn={isLoggedIn}>
-                    <UserEditForm userName={userName} userId={userId} updateUserName={updateUserName} />
+                    <UserEditForm
+                      userName={userName}
+                      userId={userId}
+                      updateUserName={updateUserName}
+                    />
                   </PrivateRouteWrapper>
                 }
               />
