@@ -40,24 +40,20 @@ function AddItem() {
     initialValues: {
       itemName: "",
       itemType: "",
-      roomId: "",
-      subroomId: "",
+      roomId: null,
+      subroomId: null,
     },
     validate: (values) => {
       const errors = {};
-
       if (!values.itemName) {
         errors.itemName = "Item name cannot be blank";
       }
-
       if (!values.itemType) {
         errors.itemType = "Please select an item type";
       }
-
       if (!values.roomId && !values.subroomId) {
         errors.roomOrSubroom = "Please select a room or a subroom";
       }
-
       return errors;
     },
     onSubmit: async (values, { setSubmitting, setStatus }) => {
@@ -67,7 +63,6 @@ function AddItem() {
         roomId: values.roomId,
         subroomId: values.subroomId,
       };
-
       try {
         const response = await axios.post(
           "http://127.0.0.1:5000/add_item",
@@ -97,6 +92,24 @@ function AddItem() {
   const handleFinish = () => {
     navigate("/dashboard");
   };
+const handleRoomChange = (e) => {
+  const value = e.target.value === "" ? "" : parseInt(e.target.value, 10);
+  formik.setFieldValue("roomId", value);
+  formik.setFieldValue("subroomId", "");
+};
+
+const handleSubroomChange = (e) => {
+  const value = e.target.value === "" ? "" : parseInt(e.target.value, 10);
+  formik.setFieldValue("subroomId", value);
+  // The next part assumes that each subroom object has a roomId property
+  const selectedSubroom = subrooms.find(subroom => subroom.id === value);
+  if (selectedSubroom) {
+    formik.setFieldValue("roomId", selectedSubroom.roomId);
+  } else {
+    formik.setFieldValue("roomId", "");
+  }
+};
+
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-85">
@@ -154,7 +167,7 @@ function AddItem() {
                   onBlur={formik.handleBlur}
                   value={formik.values.itemType}
                 >
-                  {/* Here you would populate the options based on the ItemType enum */}
+                  {/* Item type options */}
                   <option value="" label="Select item type" />
                   <option value="HOUSEHOLD" label="Household" />
                   <option value="DECORATION" label="Decoration" />
@@ -178,10 +191,7 @@ function AddItem() {
                 <Form.Select
                   id="roomId"
                   name="roomId"
-                  onChange={(e) => {
-                    formik.setFieldValue("roomId", e.target.value);
-                    formik.setFieldValue("subroomId", ""); // Reset subroom when room changes
-                  }}
+                  onChange={handleRoomChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.roomId}
                 >
@@ -197,7 +207,7 @@ function AddItem() {
                 )}
               </Form.Group>
 
-              {formik.values.roomId && (
+              {rooms.length > 0 && (
                 <Form.Group className="mb-3">
                   <Form.Label htmlFor="subroomId">
                     Subroom (optional)
@@ -205,10 +215,7 @@ function AddItem() {
                   <Form.Select
                     id="subroomId"
                     name="subroomId"
-                    onChange={(e) => {
-                      formik.setFieldValue("subroomId", e.target.value);
-                      formik.setFieldValue("roomId", ""); // Reset room when subroom changes
-                    }}
+                    onChange={handleSubroomChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.subroomId}
                   >
