@@ -1,4 +1,5 @@
 export const ItemTypes = {
   ITEM: 'item',
-  SUBROOM: 'subroom'
+  SUBROOM: 'subroom',
+  ROOM: 'room',
 };
