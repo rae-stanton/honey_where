@@ -535,7 +535,6 @@ class TokenRefreshResource(Resource):
 
 api.add_resource(TokenRefreshResource, "/token/refresh")
 
-
 class LoginResource(Resource):
     def post(self):
         email = request.json.get('email', None)
