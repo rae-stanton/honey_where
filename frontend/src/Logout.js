@@ -36,7 +36,6 @@ function Logout({ setIsLoggedIn, setUserName }) {
     handleLogout();
   }, [navigate]);
 
-  // Display error message to the user if there's any
   if (error) {
     return <p>{error}</p>;
   }
