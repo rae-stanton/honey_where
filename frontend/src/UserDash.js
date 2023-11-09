@@ -44,7 +44,7 @@ function UserDash({ userName }) {
     };
 
     fetchUserDetails();
-  }, [newRoom]);
+  }, [newRoom, token]);
 
   const filterItemsByName = (item) => {
     return item.name.toLowerCase().includes(searchTerm.toLowerCase());
