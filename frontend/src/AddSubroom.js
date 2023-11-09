@@ -66,30 +66,32 @@ function AddSubroom() {
       <Card className="mt-5 w-80 forms">
         <Card.Body>
           <h4 className="header-text text-center text-primary mb-4">
-            Add a Subroom
+            Add a Mini-Comb
           </h4>
           <Form onSubmit={formikSubroom.handleSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label>Subroom Name</Form.Label>
+              <Form.Label>Mini-Comb Name</Form.Label>
+              <br />
+              <Form.Label className="sub-label">Things like totes, closet, whatever!</Form.Label>
               <Form.Control
                 id="subroomName"
                 name="subroomName"
                 type="text"
-                placeholder="Enter Subroom Name"
+                placeholder="Enter Mini-Comb Name"
                 onChange={formikSubroom.handleChange}
                 value={formikSubroom.values.subroomName}
               />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Room</Form.Label>
+              <Form.Label>Comb (room):</Form.Label>
               <Form.Select
                 id="roomId"
                 name="roomId"
                 onChange={formikSubroom.handleChange}
                 value={formikSubroom.values.roomId}
               >
-                <option value="">Select a room</option>
+                <option value="">Select your comb:</option>
                 {rooms.map((room) => (
                   <option key={room.id} value={room.id}>
                     {room.name}
@@ -99,7 +101,7 @@ function AddSubroom() {
             </Form.Group>
 
             <Button variant="primary" type="submit" className="login-button" disabled={formikSubroom.isSubmitting}>
-              Add Subroom
+              Add Mini-Comb
             </Button>
           </Form>
         </Card.Body>

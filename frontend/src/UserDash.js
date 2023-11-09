@@ -4,11 +4,13 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import Badge from "react-bootstrap/Badge";
+import Button from "react-bootstrap/Button";
 import "./UserDash.css";
 import { Container, Row, Col } from "react-bootstrap";
 import { DraggableItem } from "./DraggableItem";
 import { DroppableArea } from "./DroppableArea";
 import { useDragDropContext } from "./DragDropContext";
+import { useNavigate } from "react-router-dom";
 
 function UserDash({ userName }) {
   const token = localStorage.getItem("access_token");
@@ -16,6 +18,7 @@ function UserDash({ userName }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItemType, setSelectedItemType] = useState("");
   const { onDrop, newRoom } = useDragDropContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -104,7 +107,13 @@ function UserDash({ userName }) {
     <Card className="dashboard-card">
       <Card.Body>
         <h2>Welcome back, {userName}</h2>
-
+        <Button
+          variant="outline-primary"
+          onClick={() => navigate("/edit-user")} // Navigate to the edit-user route
+          className="edit-profile-button mb-3 mx-auto d-block"
+        >
+          Edit Profile
+        </Button>
         <Container className="my-4">
           <Row className="justify-content-center">
             <Col md={6} className="d-flex flex-column align-items-center">

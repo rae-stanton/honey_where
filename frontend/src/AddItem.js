@@ -237,7 +237,7 @@ function AddItem() {
               <Button
                 type="submit"
                 variant="primary"
-                className="w-100 mb-3"
+                className="w-100 mb-3 login-button"
                 disabled={formik.isSubmitting}
               >
                 {formik.isSubmitting ? "Adding..." : "Add Item"}

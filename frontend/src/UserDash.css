@@ -49,3 +49,18 @@ h5 {
   margin-right: auto;
 }
 
+.edit-profile-button {
+  background-color: #ffbc13 !important;
+  border: 1px solid #ceb4a7;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: "Nunito", sans-serif !important;
+  display: block; /* Ensures the button is a block-level element */
+  width: fit-content; /* Makes the button's width fit its content */
+  margin: 0 auto; /* Centers the button horizontally */
+  color: white;
+}
+.edit-profile-button:hover {
+  background-color: #e0a800 !important; /* Darker yellow shade for hover */
+  color: #fff; /* Change text color on hover if needed */
+  /* Add any other hover effects you want here */
+}
