@@ -10,7 +10,7 @@ function Home({ userName }) {
         <Card.Body>
           <Card.Title>Welcome to the Home Page</Card.Title>
           <Card.Text>
-            Hello {userName}!
+            {userName ? `Hello, ${userName}!` : 'Welcome!'}
             <br />
             What is HoneyWhere?
             <br />
@@ -27,3 +27,4 @@ function Home({ userName }) {
 }
 
 export default Home;
+
