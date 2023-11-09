@@ -252,7 +252,7 @@ api.add_resource(RoomByIdResource, "/rooms/<int:room_id>")
 
 
 class SubroomResource(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self):
         subrooms = Subroom.query.all()
         return jsonify({"subrooms": [subroom.to_dict(include_items=True) for subroom in subrooms]})

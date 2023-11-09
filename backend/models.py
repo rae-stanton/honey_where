@@ -191,12 +191,14 @@ class Item(db.Model):
     def to_dict(self):
         location = RoomItems.query.filter_by(item_id=self.id).first()
         room_id = location.room_id if location else None
+        subroom_id = location.subroom_id if location else None
         return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
             'item_type': self.item_type.value if self.item_type else None,
-            'room_id': room_id
+            'room_id': room_id,
+            'subroom_id': subroom_id,
         }
 
 

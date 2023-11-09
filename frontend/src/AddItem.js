@@ -68,7 +68,7 @@ function AddItem() {
           ? { subroomId: values.subroomId }
           : { roomId: values.roomId }),
       };
-
+  console.log('Submitting the following data to /add_item:', postData);
       try {
         const response = await axios.post(
           "http://127.0.0.1:5000/add_item",
