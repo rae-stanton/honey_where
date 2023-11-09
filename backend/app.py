@@ -360,10 +360,14 @@ api.add_resource(ItemResource, "/items")
 
 
 class RoomItemsResource(Resource):
-    def get(self, room_id=None):
+    def get(self, room_id=None, subroom_id=None):
         if room_id:
             room_items = RoomItems.query.filter_by(room_id=room_id).all()
             return jsonify({"items": [room_item.to_dict() for room_item in room_items]})
+        elif subroom_id:
+            # This is the new logic to handle subroom items.
+            subroom_items = RoomItems.query.filter_by(subroom_id=subroom_id).all()
+            return jsonify({"items": [subroom_item.to_dict() for subroom_item in subroom_items]})
         else:
             room_items = RoomItems.query.all()
             return jsonify({"room_items": [room_item.to_dict() for room_item in room_items]})
@@ -442,7 +446,8 @@ api.add_resource(RoomItemsByIdResource,
                  "/room-items/<int:room_id>", endpoint='room_items_by_id')
 api.add_resource(RoomItemsByIdResource,
                  "/room-items/<int:room_id>/<int:item_id>", endpoint='room_item_detail')
-
+api.add_resource(RoomItemsResource,
+                 "/subroom-items/<int:subroom_id>", endpoint='room_items_by_subroom_id')
 
 class TokenRefreshResource(Resource):
     @jwt_required(refresh=True)
