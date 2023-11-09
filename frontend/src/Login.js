@@ -8,13 +8,33 @@ import Nav from "react-bootstrap/Nav";
 import "./LoginStyling.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+function validateLogin(values) {
+  const errors = {};
+
+  if (!values.email) {
+    errors.email = "Email is required";
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
+    errors.email = "Invalid email address";
+  }
+
+  if (!values.password) {
+    errors.password = "Password is required";
+  } else if (values.password.length < 6) {
+    errors.password = "Password must be at least 6 characters";
+  }
+
+  return errors;
+}
+
 function Login({ setIsLoggedIn, setUserName, setUserId }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [error, setError] = useState(null);
 
   const [showAlert, setShowAlert] = useState(
     location.state?.fromPrivateRoute || false
   );
+  const [noHomeAlert, setNoHomeAlert] = useState(false);
 
   useEffect(() => {
     if (showAlert) {
@@ -24,6 +44,15 @@ function Login({ setIsLoggedIn, setUserName, setUserId }) {
       return () => clearTimeout(timeout);
     }
   }, [showAlert]);
+
+  useEffect(() => {
+    if (noHomeAlert) {
+      const timeout = setTimeout(() => {
+        setNoHomeAlert(false);
+      }, 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [noHomeAlert]);
 
   return (
     <>
@@ -38,21 +67,30 @@ function Login({ setIsLoggedIn, setUserName, setUserId }) {
           </Alert>
         </div>
       )}
+      {noHomeAlert && (
+        <div className="d-flex justify-content-center mt-5">
+          <Alert
+            variant="warning"
+            onClose={() => setNoHomeAlert(false)}
+            dismissible
+          >
+            You don't have a Hive yet, let's create one! Redirecting now...
+          </Alert>
+        </div>
+      )}
       <div className="d-flex justify-content-center align-items-center vh-85">
         <Formik
           initialValues={{
             email: "",
             password: "",
           }}
+          validate={validateLogin}
           onSubmit={async (values, { setSubmitting }) => {
             try {
-              const response = await axios.post(
-                "http://127.0.0.1:5000/login",
-                {
-                  email: values.email,
-                  password: values.password,
-                }
-              );
+              const response = await axios.post("http://127.0.0.1:5000/login", {
+                email: values.email,
+                password: values.password,
+              });
 
               if (response.status === 200) {
                 localStorage.setItem(
@@ -69,16 +107,27 @@ function Login({ setIsLoggedIn, setUserName, setUserId }) {
                 setUserName(response.data.user_name);
                 setUserId(response.data.user_id);
 
-                // Fetch user details to check if they have a home
-                const userResponse = await axios.get("http://127.0.0.1:5000/user_home_details", {
-                  headers: {
-                    Authorization: `Bearer ${response.data.access_token}`,
-                  },
-                });
+                const userResponse = await axios.get(
+                  "http://127.0.0.1:5000/user_home_details",
+                  {
+                    headers: {
+                      Authorization: `Bearer ${response.data.access_token}`,
+                    },
+                  }
+                );
+                const hasHome =
+                  userResponse.data.home &&
+                  Array.isArray(userResponse.data.home.rooms) &&
+                  userResponse.data.home.rooms.length > 0;
 
-                // Redirect based on whether the user has a home
-                if (!userResponse.data.home || userResponse.data.home.rooms.length === 0) {
-                  navigate("/add-home");
+                if (!hasHome) {
+                  // Set noHomeAlert state to true to display the alert
+                  setNoHomeAlert(true);
+
+                  // Redirect to /add-home after 5 seconds to give the user time to read the alert
+                  setTimeout(() => {
+                    navigate("/add-home");
+                  }, 5000);
                 } else {
                   navigate("/dashboard");
                 }
@@ -87,13 +136,21 @@ function Login({ setIsLoggedIn, setUserName, setUserId }) {
               }
             } catch (error) {
               console.error("Login error", error);
-              alert("Login error");
+              if (error.response && error.response.status === 400) {
+                setNoHomeAlert(true);
+
+                setTimeout(() => {
+                  navigate("/add-home");
+                }, 5000);
+              } else {
+                alert("Login error");
+              }
             } finally {
               setSubmitting(false);
             }
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, errors, touched }) => (
             <Card className="mt-5 w-80 forms">
               <Card.Body>
                 <h4 className="header-text text-center text-primary mb-4">
@@ -105,26 +162,34 @@ function Login({ setIsLoggedIn, setUserName, setUserId }) {
                       Email
                     </label>
                     <Field
-                      as="input"
                       id="email"
                       name="email"
                       placeholder="Your email"
                       type="email"
-                      className="form-control"
+                      className={`form-control ${
+                        touched.email && errors.email ? "is-invalid" : ""
+                      }`}
                     />
+                    {touched.email && errors.email && (
+                      <div className="invalid-feedback">{errors.email}</div>
+                    )}
                   </div>
                   <div className="mb-3">
                     <label htmlFor="password" className="form-label">
                       Password
                     </label>
                     <Field
-                      as="input"
                       id="password"
                       name="password"
                       placeholder="Your password"
                       type="password"
-                      className="form-control"
+                      className={`form-control ${
+                        touched.password && errors.password ? "is-invalid" : ""
+                      }`}
                     />
+                    {touched.password && errors.password && (
+                      <div className="invalid-feedback">{errors.password}</div>
+                    )}
                   </div>
                   <Button
                     type="submit"

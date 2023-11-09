@@ -4,11 +4,13 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import Badge from "react-bootstrap/Badge";
+import Button from "react-bootstrap/Button";
 import "./UserDash.css";
 import { Container, Row, Col } from "react-bootstrap";
-import { DraggableItem } from "./DraggableItem"; // Assuming DraggableItem is in DraggableItem.js
+import { DraggableItem } from "./DraggableItem";
 import { DroppableArea } from "./DroppableArea";
-import { useDragDropContext } from './DragDropContext';
+import { useDragDropContext } from "./DragDropContext";
+import { useNavigate } from "react-router-dom";
 
 function UserDash({ userName }) {
   const token = localStorage.getItem("access_token");
@@ -16,7 +18,7 @@ function UserDash({ userName }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItemType, setSelectedItemType] = useState("");
   const { onDrop, newRoom } = useDragDropContext();
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -36,14 +38,13 @@ function UserDash({ userName }) {
 
         setUserData(response.data);
         console.log(response.data);
-
       } catch (error) {
         console.error("Error fetching user details:", error);
       }
     };
 
     fetchUserDetails();
-  }, [newRoom]);
+  }, [newRoom, token]);
 
   const filterItemsByName = (item) => {
     return item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -106,7 +107,13 @@ function UserDash({ userName }) {
     <Card className="dashboard-card">
       <Card.Body>
         <h2>Welcome back, {userName}</h2>
-
+        <Button
+          variant="outline-primary"
+          onClick={() => navigate("/edit-user")} // Navigate to the edit-user route
+          className="edit-profile-button mb-3 mx-auto d-block"
+        >
+          Edit Profile
+        </Button>
         <Container className="my-4">
           <Row className="justify-content-center">
             <Col md={6} className="d-flex flex-column align-items-center">
@@ -152,10 +159,8 @@ function UserDash({ userName }) {
                   userData.home.rooms.map((room) => (
                     <DroppableArea
                       key={room.id}
-                      room={room}
-                      onDrop={(item) => {
-                        onDrop(item, room);
-                      }}
+                      target={room}
+                      targetType="room"
                     >
                       <Col>
                         <Card className="mb-3">
@@ -172,6 +177,7 @@ function UserDash({ userName }) {
                                     key={item.id}
                                     item={item}
                                     currentRoomId={room.id}
+                                    currentSubroomId={null} // Set to null as this is a room level item
                                   >
                                     <ListGroup.Item>
                                       {item.name}{" "}
@@ -182,26 +188,41 @@ function UserDash({ userName }) {
                           </ListGroup>
                           {room.subrooms &&
                             room.subrooms.map((subroom) => (
-                              <Card
+                              <DroppableArea
                                 key={subroom.id}
-                                className="mb-2 mt-2 subroom-card"
+                                target={subroom}
+                                targetType="subroom"
                               >
-                                <Card.Header as="h6" className="subroom-header">
-                                  {subroom.name}
-                                </Card.Header>
-                                <ListGroup variant="flush">
-                                  {subroom.items &&
-                                    subroom.items
-                                      .filter(filterItemsByName)
-                                      .filter(filterItemsByType)
-                                      .map((item) => (
-                                        <ListGroup.Item key={item.id}>
-                                          {item.name}{" "}
-                                          <ColoredPill label={item.item_type} />
-                                        </ListGroup.Item>
-                                      ))}
-                                </ListGroup>
-                              </Card>
+                                <Card className="mb-2 mt-2 subroom-card">
+                                  <Card.Header
+                                    as="h6"
+                                    className="subroom-header"
+                                  >
+                                    {subroom.name}
+                                  </Card.Header>
+                                  <ListGroup variant="flush">
+                                    {subroom.items &&
+                                      subroom.items
+                                        .filter(filterItemsByName)
+                                        .filter(filterItemsByType)
+                                        .map((item) => (
+                                          <DraggableItem
+                                            key={item.id}
+                                            item={item}
+                                            currentRoomId={room.id}
+                                            currentSubroomId={subroom.id} // Here subroom is defined
+                                          >
+                                            <ListGroup.Item>
+                                              {item.name}{" "}
+                                              <ColoredPill
+                                                label={item.item_type}
+                                              />
+                                            </ListGroup.Item>
+                                          </DraggableItem>
+                                        ))}
+                                  </ListGroup>
+                                </Card>
+                              </DroppableArea>
                             ))}
                         </Card>
                       </Col>

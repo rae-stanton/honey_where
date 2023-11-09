@@ -17,16 +17,48 @@ export const DragDropProvider = ({ children }) => {
 
   const defineDropTarget = (target) => setDropTarget(target);
 
-  const updateRoomState = (item, newRoomId) => {
+  const updateRoomState = (item, newRoomId, newSubroomId) => {
     setNewRoom((prevRoomState) => {
       const updatedRooms = prevRoomState.map((room) => {
+        // Remove the item from its current location
         if (room.id === item.room_id) {
-          return { ...room, items: room.items.filter((i) => i.id !== item.id) };
-        } else if (room.id === newRoomId) {
-          return { ...room, items: [...room.items, { ...item, room_id: newRoomId }] };
+          const updatedItems = room.items.filter((i) => i.id !== item.id);
+          const updatedSubrooms = room.subrooms.map((subroom) => {
+            const updatedSubItems = subroom.items.filter(
+              (i) => i.id !== item.id
+            );
+            return { ...subroom, items: updatedSubItems };
+          });
+          return { ...room, items: updatedItems, subrooms: updatedSubrooms };
+        }
+
+        // Add the item to the new location
+        if (room.id === newRoomId) {
+          // If the item is moved to a room
+          if (!newSubroomId) {
+            const updatedItems = [
+              ...room.items,
+              { ...item, room_id: newRoomId },
+            ];
+            return { ...room, items: updatedItems };
+          }
+
+          // If the item is moved to a subroom
+          const updatedSubrooms = room.subrooms.map((subroom) => {
+            if (subroom.id === newSubroomId) {
+              const updatedSubItems = [
+                ...subroom.items,
+                { ...item, subroom_id: newSubroomId },
+              ];
+              return { ...subroom, items: updatedSubItems };
+            }
+            return subroom;
+          });
+          return { ...room, subrooms: updatedSubrooms };
         }
         return room;
       });
+
       return updatedRooms;
     });
   };
@@ -41,9 +73,13 @@ export const DragDropProvider = ({ children }) => {
     const apiUrl = "http://127.0.0.1:5000";
     const token = localStorage.getItem("access_token");
 
+    const patchUrl = item.room_id
+      ? `${apiUrl}/update-item-location/${item.id}` // For room
+      : `${apiUrl}/update-item-location/${item.id}`; // For subroom, it's the same endpoint
+
     try {
       const response = await axios.patch(
-        `${apiUrl}/room-items/${item.room_id}/${item.id}`,
+        patchUrl,
         {
           new_room_id: newRoomId,
           new_subroom_id: newSubroomId,
@@ -58,33 +94,38 @@ export const DragDropProvider = ({ children }) => {
 
       console.log(response.data.message);
       if (response.status === 200) {
-        updateRoomState(item, newRoomId)
-        onSuccess && onSuccess(item, newRoomId);
-
+        updateRoomState(item, newRoomId, newSubroomId);
+        onSuccess && onSuccess(item, newRoomId, newSubroomId);
       }
-
     } catch (error) {
       console.error("Error updating item location:", error);
-
     }
   };
 
+  const onDrop = (item, target, targetType, onSuccess) => {
+    if (!item || !target) return;
 
-  const onDrop = (item, targetRoom, onSuccess) => {
-    if (!item || !targetRoom || !targetRoom.id) return;
-
-    // Clear the drag states
     setDraggedItem(null);
     setDraggedSubroom(null);
     setDropTarget(null);
 
-    updateItemLocation(
-      { ...item, room_id: item.room_id },
-      targetRoom.id,
-      null,
-      null,
-      onSuccess
-    );
+    if (targetType === "room") {
+      updateItemLocation(
+        { ...item, room_id: item.currentRoomId },
+        target.id,
+        null,
+        null,
+        onSuccess
+      );
+    } else if (targetType === "subroom") {
+      updateItemLocation(
+        { ...item, subroom_id: item.currentSubroomId },
+        target.roomId,
+        target.id,
+        null,
+        onSuccess
+      );
+    }
   };
 
   const contextValue = {

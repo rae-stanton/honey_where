@@ -31,10 +31,10 @@ function AppNavbar({ isLoggedIn }) {
                 Add Hive
               </Nav.Link>
               <Nav.Link as={Link} to="/add-room" className="navlink">
-                Add Rooms
+                Add Combs
               </Nav.Link>
               <Nav.Link as={Link} to="/add-subroom" className="navlink">
-                Add Subroom
+                Add Mini-Comb
               </Nav.Link>
               <Nav.Link as={Link} to="/add-item" className="navlink">
                 Add Items

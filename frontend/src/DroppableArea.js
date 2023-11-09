@@ -3,14 +3,14 @@ import { useDrop } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
 import { useDragDropContext } from './DragDropContext';
 
-export const DroppableArea = ({ room, children }) => {
+export const DroppableArea = ({ target, targetType, children }) => {
   const { onDrop } = useDragDropContext();
 
   const [, dropRef] = useDrop({
     accept: ItemTypes.ITEM,
     drop: (item, monitor) => {
       if (monitor.isOver()) {
-        onDrop(item, room);
+        onDrop(item, target, targetType);
       }
     },
     collect: (monitor) => ({

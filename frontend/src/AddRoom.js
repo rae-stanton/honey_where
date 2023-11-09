@@ -66,12 +66,12 @@ function AddRoom() {
         <Card.Body>
           {showAlert && <DismissibleSuccessAlert />}
           <h4 className="header-text text-center text-primary mb-4">
-            Add A Room
+            Add a Comb
           </h4>
 
           {roomAdded ? (
             <div>
-              <p>Your room was added successfully! Would you like to add another?</p>
+              <p>Your comb was added successfully! Would you like to add another?</p>
 
               <div
                 style={{
@@ -92,13 +92,13 @@ function AddRoom() {
             <form onSubmit={formik.handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="roomName" className="form-label">
-                  Room Name
+                  Comb Name
                 </label>
                 <input
                   id="roomName"
                   name="roomName"
                   type="text"
-                  placeholder="Enter Room Name"
+                  placeholder="Enter Comb Name"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.roomName}
@@ -113,7 +113,7 @@ function AddRoom() {
 
               <div className="mb-3">
                 <label htmlFor="roomType" className="form-label">
-                  Room Type
+                  Comb Type
                 </label>
                 <select
                   id="roomType"
@@ -123,7 +123,7 @@ function AddRoom() {
                   value={formik.values.roomType}
                   className="form-control"
                 >
-                  <option value="" label="Select room type" />
+                  <option value="" label="Select comb type" />
                   <option value="BEDROOM" label="Bedroom" />
                   <option value="LIVING_ROOM" label="Living Room" />
                   <option value="KITCHEN" label="Kitchen" />
@@ -142,7 +142,7 @@ function AddRoom() {
                 className="w-100 mb-3 btn-primary login-button"
                 disabled={formik.isSubmitting}
               >
-                {formik.isSubmitting ? "Adding..." : "Add Room"}
+                {formik.isSubmitting ? "Adding..." : "Add Comb"}
               </Button>
               {formik.status && (
                 <p className="text-center p-text-login">{formik.status}</p>

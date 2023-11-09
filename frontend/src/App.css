@@ -13,3 +13,7 @@ body {
   background-repeat: no-repeat;
   min-height: 100vh;
 }
+
+.sub-label {
+  font-size: 14px;
+}
