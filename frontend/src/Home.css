@@ -11,26 +11,32 @@
   justify-content: center;
   margin-left: auto;
   margin-right: auto;
+
+}
+.home-card .card-title {
+  color: #FFA500;
+  font-size: 2rem;
+  font-family: Nunito;
 }
 
+.home-card-text {
+  font-size: 1.3rem;
+  font-family: Nunito;
+}
 .custom-image-container {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
+  position: absolute !important;
+  bottom: 5px !important;
+  right: 5px !important;
 }
 
 .bottom-right-image {
   max-width: 150px;
   max-height: 150px;
+  opacity: 0.8;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.fade-in {
-  animation: fadeIn 2s ease-in forwards;
+.home-middle-text {
+  font-size: 1.6rem;
 }
 
 .form-control:focus {

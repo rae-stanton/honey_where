@@ -8,13 +8,27 @@ function Home({ userName }) {
     <Container className="my-4">
       <Card className="home-card">
         <Card.Body>
-          <Card.Title>Welcome to the Home Page</Card.Title>
-          <Card.Text>
-            {userName ? `Hello, ${userName}!` : 'Welcome!'}
+          <Card.Title className="home-card card-title">
+            Welcome to HoneyWhere!
+          </Card.Title>
+          <Card.Text className="home-card-text">
+            {userName ? `Hello, ${userName}! 👋 ` : "Welcome!"}
             <br />
-            What is HoneyWhere?
             <br />
-            More text on what this is that fades in
+            <span className="home-middle-text">What is HoneyWhere?</span>
+            <br />
+            <br />
+            <span>HoneyWhere is inventory management for your home.</span>
+            <br />
+            <br />
+            <span className="home-middle-text">
+              Have you ever asked your "honey" where something is and they just
+              don't know?
+            </span>
+            <br />
+            <br />
+            <span>That's where HoneyWhere comes in!</span>
+            <br />
           </Card.Text>
           {/* Other content */}
           <div className="custom-image-container">
@@ -27,4 +41,3 @@ function Home({ userName }) {
 }
 
 export default Home;
-
