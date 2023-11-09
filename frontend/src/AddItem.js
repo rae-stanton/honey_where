@@ -64,11 +64,10 @@ function AddItem() {
       const postData = {
         name: values.itemName,
         type: values.itemType,
-        ...(values.subroomId
-          ? { subroomId: values.subroomId }
-          : { roomId: values.roomId }),
+        roomId: values.roomId,
+        subroomId: values.subroomId,
       };
-  console.log('Submitting the following data to /add_item:', postData);
+
       try {
         const response = await axios.post(
           "http://127.0.0.1:5000/add_item",

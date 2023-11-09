@@ -571,6 +571,7 @@ class AssignRoomResource(Resource):
 api.add_resource(AssignRoomResource, "/assign_room")
 
 
+
 class AddItemResource(Resource):
     @jwt_required()
     def post(self):
@@ -597,32 +598,33 @@ class AddItemResource(Resource):
         if not room and not subroom:
             return {"message": "Room or Subroom not found."}, 404
 
-        # Create a new item
-        item = Item(name=item_name, item_type=ItemType[item_type])
-        db.session.add(item)
-        db.session.flush()  # To get the item's ID after adding it
+        try:
+            item = Item(name=item_name, item_type=ItemType[item_type])
+            db.session.add(item)
+            db.session.flush()  # To get the item's ID after adding it
 
-        if room:
-            room_item = RoomItems(room_id=room_id, item_id=item.id)
-            return {
-                "message": f"Item '{item_name}' added successfully to room '{room.name}'!",
-                "item": item.to_dict()
-            }, 201
-        elif subroom:
-            room_item = RoomItems(subroom_id=subroom_id, item_id=item.id)
-            return {
-                "message": f"Item '{item_name}' added successfully to subroom '{subroom.name}'!",
-                "item": item.to_dict()
-            }, 201
-        db.session.add(room_item)
+            room_item = None
+            if room_id:
+                room = Room.query.get(room_id)
+                if not room:
+                    return {"message": "Room not found."}, 404
+                room_item = RoomItems(room_id=room_id, item_id=item.id)
+            elif subroom_id:
+                subroom = Subroom.query.get(subroom_id)
+                if not subroom:
+                    return {"message": "Subroom not found."}, 404
+                room_item = RoomItems(subroom_id=subroom_id, item_id=item.id)
 
-        db.session.commit()
-
-        return {
-            "message": f"Item '{item_name}' added successfully to {'room' if room else 'subroom'}!",
-            "item": item.to_dict()
-        }, 201
-
+            if room_item:
+                db.session.add(room_item)
+                db.session.commit()
+                return {"message": f"Item '{item_name}' added successfully!", "item": item.to_dict()}, 201
+            else:
+                return {"message": "Neither room ID nor subroom ID was provided."}, 400
+        except Exception as e:
+            current_app.logger.error(f"Error adding item: {e}")
+            db.session.rollback()
+            return {"message": "Failed to add item."}, 500
 
 api.add_resource(AddItemResource, "/add_item")
 
