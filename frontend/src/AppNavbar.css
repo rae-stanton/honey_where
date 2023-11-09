@@ -6,12 +6,14 @@
   color: white !important;
   font-family: 'Nunito', sans-serif !important;
   text-transform: uppercase;
+  transition: transform 0.3s ease;
 }
 
 .navlink:hover {
   color: white !important;
+  transform: scale(1.1);
   text-decoration: underline !important;
-  text-decoration-style: dashed !important;
+  text-decoration-style: dotted !important;
 }
 
 .navbar-logo-text {
