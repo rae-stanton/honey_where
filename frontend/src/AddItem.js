@@ -205,7 +205,10 @@ function AddItem() {
                   <Form.Select
                     id="subroomId"
                     name="subroomId"
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      formik.setFieldValue("subroomId", e.target.value);
+                      formik.setFieldValue("roomId", ""); // Reset room when subroom changes
+                    }}
                     onBlur={formik.handleBlur}
                     value={formik.values.subroomId}
                   >

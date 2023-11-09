@@ -416,30 +416,88 @@ class RoomItemsByIdResource(Resource):
         db.session.commit()
         return {"message": "Item removed from room successfully!"}, 200
 
-    @jwt_required()
-    def patch(self, room_id, item_id):
+
+    # def patch(self, room_id, item_id):
+    #     data = request.get_json()
+    #     new_room_id = data.get('new_room_id', None)
+    #     new_subroom_id = data.get('new_subroom_id', None)
+    #     new_order = data.get('new_order', None)
+
+    #     # Fetch the existing association of the item
+    #     room_item = RoomItems.query.filter_by(item_id=item_id).first()
+    #     if not room_item:
+    #         return {"message": "Item not found in any room or subroom."}, 404
+
+    #     try:
+    #         # Update the item's room association
+    #         if new_room_id is not None:
+    #             new_room = Room.query.get(new_room_id)
+    #             if not new_room:
+    #                 return {"message": "New room not found."}, 404
+    #             room_item.room = new_room
+    #             room_item.subroom = None  # Remove association with subroom if any
+
+    #         # Update the item's subroom association
+    #         if new_subroom_id is not None:
+    #             new_subroom = Subroom.query.get(new_subroom_id)
+    #             if not new_subroom:
+    #                 return {"message": "New subroom not found."}, 404
+    #             room_item.subroom = new_subroom
+    #             room_item.room = None  # Remove association with room if any
+
+    #         # Update the item's order if provided
+    #         if new_order is not None:
+    #             room_item.order = new_order
+
+    #         db.session.commit()
+    #         return {"message": "Item updated successfully!"}, 200
+    #     except Exception as e:
+    #         db.session.rollback()
+    #         current_app.logger.error(f"Error updating item: {e}")
+    #         return {"message": "Failed to update item."}, 500class RoomItemsByIdResource(Resource):
+
+    def post(self):
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        if not user:
+            return {"message": "User not found."}, 404
+
         data = request.get_json()
-        new_room_id = data.get('new_room_id', None)
-        new_subroom_id = data.get('new_subroom_id', None)
-        new_order = data.get('new_order', None)
+        item_name = data.get("name")
+        item_type = data.get("type")
+        subroom_id = data.get("subroomId")
 
-        room_item = RoomItems.query.filter_by(
-            room_id=room_id, item_id=item_id).first()
-        if not room_item:
-            return {"message": "Room-Item association not found."}, 404
+        # Ensure item_type is valid
+        if not item_type:
+            return {"message": "item_type is required"}, 400
+        if item_type not in ItemType._member_names_:
+            return {"message": f"Invalid item_type. Allowed values are {list(ItemType._member_names_)}"}, 400
 
-        if new_room_id is not None:
-            room_item.room_id = new_room_id
-            room_item.subroom_id = None
-        elif new_subroom_id is not None:
-            room_item.subroom_id = new_subroom_id
+        # Ensure subroom_id is provided and valid
+        if not subroom_id:
+            return {"message": "subroom_id is required"}, 400
+        subroom = Subroom.query.get(subroom_id)
+        if not subroom:
+            return {"message": "Subroom not found."}, 404
 
-        if new_order is not None:
-            room_item.order = new_order
+        # Create and add the item
+        try:
+            item = Item(name=item_name, item_type=ItemType[item_type])
+            db.session.add(item)
+            db.session.flush()  # To get the item's ID after adding it
 
-        db.session.commit()
-        return {"message": "Item updated successfully!"}, 200
+            # Associate the item with the subroom
+            room_item = RoomItems(subroom_id=subroom_id, item_id=item.id)
+            db.session.add(room_item)
+            db.session.commit()
 
+            return {
+                "message": f"Item '{item_name}' added successfully to subroom '{subroom.name}'!",
+                "item": item.to_dict()
+            }, 201
+        except Exception as e:
+            db.session.rollback()
+            return {"message": f"Failed to add item: {str(e)}"}, 500
 
 api.add_resource(RoomItemsResource, "/room-items", endpoint='room_items')
 api.add_resource(RoomItemsByIdResource,
