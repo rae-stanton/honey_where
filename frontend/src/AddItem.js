@@ -92,24 +92,23 @@ function AddItem() {
   const handleFinish = () => {
     navigate("/dashboard");
   };
-const handleRoomChange = (e) => {
-  const value = e.target.value === "" ? "" : parseInt(e.target.value, 10);
-  formik.setFieldValue("roomId", value);
-  formik.setFieldValue("subroomId", "");
-};
+  const handleRoomChange = (e) => {
+    const value = e.target.value === "" ? "" : parseInt(e.target.value, 10);
+    formik.setFieldValue("roomId", value);
+    formik.setFieldValue("subroomId", "");
+  };
 
-const handleSubroomChange = (e) => {
-  const value = e.target.value === "" ? "" : parseInt(e.target.value, 10);
-  formik.setFieldValue("subroomId", value);
-  // The next part assumes that each subroom object has a roomId property
-  const selectedSubroom = subrooms.find(subroom => subroom.id === value);
-  if (selectedSubroom) {
-    formik.setFieldValue("roomId", selectedSubroom.roomId);
-  } else {
-    formik.setFieldValue("roomId", "");
-  }
-};
-
+  const handleSubroomChange = (e) => {
+    const value = e.target.value === "" ? "" : parseInt(e.target.value, 10);
+    formik.setFieldValue("subroomId", value);
+    // The next part assumes that each subroom object has a roomId property
+    const selectedSubroom = subrooms.find((subroom) => subroom.id === value);
+    if (selectedSubroom) {
+      formik.setFieldValue("roomId", selectedSubroom.roomId);
+    } else {
+      formik.setFieldValue("roomId", "");
+    }
+  };
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-85">
